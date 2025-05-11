@@ -36,6 +36,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 find_library(SSL_LIB ssl)
 find_library(CRYPTO_LIB crypto)
+find_library(PTHREAD_LIB pthread)
 
 include_directories(${INCLUDES})
 
@@ -71,4 +72,5 @@ target_sources(${PROGRAM_NAME} PRIVATE ${QM_FILES})
 target_link_libraries(${PROGRAM_NAME}
   ${SSL_LIB}
   ${CRYPTO_LIB}
+  ${PTHREAD_LIB}
   )
