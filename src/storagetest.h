@@ -20,8 +20,14 @@
  *
  */
 
-#include <stdio.h>
+#ifndef _STORAGETEST_H_
+#define _STORAGETEST_H_
+
+#include <openssl/evp.h>
+#include <openssl/sha.h>
 
 #include "config.h"
 
-int main(int argc, char *argv[]) { return 0; }
+
+
+#endif
