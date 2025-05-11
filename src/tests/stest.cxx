@@ -20,12 +20,19 @@
  *
  */
 
-#ifndef _STORAGETEST_H_
-#define _STORAGETEST_H_
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-#include <openssl/evp.h>
-#include <openssl/sha.h>
+TEST(stest, example) {
+        // Expect two strings not to be equal.
+        EXPECT_STRNE("hello", "world");
+        // Expect equality.
+        EXPECT_EQ(7 * 6, 42);
+}
 
-#include "config.h"
+int main(int argc, char *argv[]) {
+        ::testing::InitGoogleTest(&argc, argv);
+        ::testing::InitGoogleMock(&argc, argv);
 
-#endif
+        return RUN_ALL_TESTS();
+}

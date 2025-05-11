@@ -33,5 +33,14 @@ crystaldiskmark) и закачивая более unix-way способом ис
 
 Например можно собрать так:
 ```
-	cmake -B build && cmake --build build
+cmake -B build && cmake --build build
+```
+
+Для вызова тестов при помощи `ctest` необходимо вызвать `ctest`
+внутири каталога сборки содержащей конфигурацию тестов. Т.е. в случае
+каталога сброки `build/` путь будет выглядить так `cd build/src/test`:
+
+```
+cmake -B build && cmake --build build
+cd build/src/test && ctest
 ```

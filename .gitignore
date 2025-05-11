@@ -1,4 +1,5 @@
 /bin/
 /build/
+/Testing/
 
 /src/config.h

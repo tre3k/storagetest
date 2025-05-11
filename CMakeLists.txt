@@ -32,6 +32,7 @@ set(INCLUDES
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 set(CMAKE_C_STANDARD 23)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 find_library(SSL_LIB ssl)
@@ -74,3 +75,5 @@ target_link_libraries(${PROGRAM_NAME}
   ${CRYPTO_LIB}
   ${PTHREAD_LIB}
   )
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/${SOURCES_SUBDIR}/tests)
