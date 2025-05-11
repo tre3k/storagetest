@@ -1,0 +1,54 @@
+/*
+ * Copyright (c) 2025 Kirill Pshenichnyi <pshcyrill@mail.ru>
+ *
+ * This file is part of storagetest.
+ *
+ * storagetest is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * storagetest is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with storagetest.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *    Author: Kirill Pshenichnyi <pshcyrill@mail.ru>
+ *
+ */
+
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
+
+/*!
+ * Изспользовать ли sha256 или sha512
+ * Оказывается что на моей машине sha512 работает быстрее чем sha256
+ */
+#define USE_SHA512 @USE_SHA512@
+
+/*! Размер блока по-умолчанию. 4 кБ */
+#define FILE_BLOCK_SIZE_DEFAULT 4096
+
+#if USE_SHA512
+#define EVP_SHA() EVP_sha512()
+#define SHA(d, n, md) SHA512(d, n, md)
+#define SHA_SUM_SIZE 64
+#else
+#define EVP_SHA() EVP_sha256()
+#define SHA(d, n, md) SHA256(d, n, md)
+#define SHA_SUM_SIZE 32
+#endif
+
+#define APPLICATION_NAME @APPLICATION_NAME@
+#define APPLICATION_VERSION @APPLICATION_VERSION@
+#define APPLICATION_DESCRIPTION "storagetest", ""
+
+#define BUILT_TIMESTAMP @TODAY_TEXT@
+#define BUILT_COMPILER_VERSION @CMAKE_CXX_COMPILER_VERSION_TEXT@
+#define BUILT_COMPILER_ID @CMAKE_CXX_COMPILER_ID_TEXT@
+#define COPYRIGHT_YEAR @COPY_YEAR_TEXT@
+
+#endif
