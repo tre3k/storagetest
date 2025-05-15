@@ -30,6 +30,8 @@ set(INCLUDES
   )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_CXX_STANDARD 23)
@@ -59,18 +61,19 @@ set(CMAKE_C_COMPILER_VERSION_TEXT \"${CMAKE_C_COMPILER_VERSION}\")
 set(CMAKE_C_COMPILER_ID_TEXT \"${CMAKE_C_COMPILER_ID}\")
 
 if(NOT DEFINED USE_SHA512)
-    set(USE_SHA512 0)
+  set(USE_SHA512 0)
 endif(NOT DEFINED USE_SHA512)
 
 configure_file(config.h.in ${PROJECT_SOURCE_DIR}/${SOURCES_SUBDIR}/config.h)
 
-add_executable(${PROGRAM_NAME}
-  ${SOURCES_SUBDIR}/main.c
+add_library(${PROGRAM_NAME} STATIC
   ${SOURCES_SUBDIR}/storagetest.c
-
+  ${SOURCES_SUBDIR}/fileinformation.c
   )
 
-target_sources(${PROGRAM_NAME} PRIVATE ${QM_FILES})
+add_executable(${PROGRAM_NAME}cli
+  ${SOURCES_SUBDIR}/main.c
+  )
 
 target_link_libraries(${PROGRAM_NAME}
   ${SSL_LIB}

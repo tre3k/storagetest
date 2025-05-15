@@ -24,7 +24,10 @@ enable_testing()
 find_library(GTEST gtest)
 find_library(GMOCK gmock)
 
-add_executable(stest stest.cxx)
+add_executable(stest
+  stest.cxx
+  )
+
 target_link_libraries(
   stest
   ${GTEST}

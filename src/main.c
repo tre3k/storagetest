@@ -23,5 +23,7 @@
 #include <stdio.h>
 
 #include "config.h"
+#include "fileinformation.h"
+#include "storagetest.h"
 
 int main(int argc, char *argv[]) { return 0; }

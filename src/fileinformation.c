@@ -20,22 +20,22 @@
  *
  */
 
-#ifndef _STORAGETEST_H_
-#define _STORAGETEST_H_
-
-#include <errno.h>
-#include <openssl/evp.h>
-#include <openssl/sha.h>
-#include <stddef.h>
-#include <stdlib.h>
-
-#include "config.h"
 #include "fileinformation.h"
 
-int writeFile(FileInformation *file_info);
-int readFile(FileInformation *file_info);
+enum ContentType {
+        RANDOM,
+        CONSTANT
+};
 
-int writeFiles(FileInformation *file_infos[]);
-int readFiles(FileInformation *file_infos[]);
+struct SFileInformation {
+        char *path;
+        size_t size;
+        size_t block_size;
+        unsigned char *sha_sum;
+        unsigned int content_type;
+        unsigned char content_constatn;
+};
 
-#endif
+size_t fileInformationSize() { return sizeof(FileInformation); }
+FileInformation *fileInformationInit() { return malloc(fileInformationSize()); }
+void fileInformationFree(FileInformation *file_info) { free(file_info); }

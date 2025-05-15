@@ -21,7 +21,3 @@
  */
 
 #include "storagetest.h"
-
-struct FileInformation {
-
-};

@@ -23,7 +23,10 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-TEST(stest, example) {
+#include "fileinformation.h"
+
+
+TEST(storagetest, writeFile) {
         // Expect two strings not to be equal.
         EXPECT_STRNE("hello", "world");
         // Expect equality.
