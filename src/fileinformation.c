@@ -27,13 +27,24 @@ enum ContentType {
         CONSTANT
 };
 
+/*!
+ * @path - path and name to file
+ * @size - size of file
+ * @block_size - size of block for read/written at a time
+ * @progress - bytes of current writed/readed
+ * @sha_sum - sha256/512 check sum
+ * @content_type - see ContentType
+ * @content_constant - value of bytes if not random
+ */
+
 struct SFileInformation {
         char *path;
         size_t size;
         size_t block_size;
+        size_t progress;
         unsigned char *sha_sum;
         unsigned int content_type;
-        unsigned char content_constatn;
+        unsigned char content_constant;
 };
 
 size_t fileInformationSize() { return sizeof(FileInformation); }
