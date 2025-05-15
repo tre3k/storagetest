@@ -23,9 +23,20 @@
 #ifndef _STORAGETEST_H_
 #define _STORAGETEST_H_
 
+#include <errno.h>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
+#include <stdlib.h>
 
 #include "config.h"
+
+struct FileInformation;
+
+int writeFile(struct FileInformation *file_info);
+int readFile(struct FileInformation *file_info);
+
+int writeFiles(struct FileInformation *file_infos[]);
+int readFiles(struct FileInformation *file_infos[]);
+
 
 #endif

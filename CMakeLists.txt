@@ -66,6 +66,8 @@ configure_file(config.h.in ${PROJECT_SOURCE_DIR}/${SOURCES_SUBDIR}/config.h)
 
 add_executable(${PROGRAM_NAME}
   ${SOURCES_SUBDIR}/main.c
+  ${SOURCES_SUBDIR}/storagetest.c
+
   )
 
 target_sources(${PROGRAM_NAME} PRIVATE ${QM_FILES})
