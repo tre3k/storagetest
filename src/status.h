@@ -20,30 +20,16 @@
  *
  */
 
-#ifndef _STORAGETEST_H_
-#define _STORAGETEST_H_
+#ifndef _STATUS_H_
+#define	_STATUS_H_
 
-#include <errno.h>
-#include <openssl/evp.h>
-#include <openssl/sha.h>
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "config.h"
-#include "fileinformation.h"
-#include "status.h"
+struct SStatus;
+typedef struct SStatus Status;
 
-bool checkShaSums(unsigned char *sha_sum1, unsigned char *sha_sum2);
-
-int writeFile(FileInformation *file_info, Status *status);
-int readFile(FileInformation *file_info, Status *status);
-
-int writeFiles(FileInformation **file_infos, int count, Status *status);
-int readFiles(FileInformation **file_infos, int count, Status *status);
-int removeFiles(FileInformation **file_infos, int count, Status *status);
-
-int testInDirectory(
-    char *path, int files_count, int file_size, int block_size, Status *status);
-int testInDevice(char *path, int file_size, int block_size, Status *status);
+Status *statusInit();
+void statusFree(Status *status);
 
 #endif

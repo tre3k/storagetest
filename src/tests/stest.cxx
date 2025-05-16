@@ -30,6 +30,7 @@
 
 extern "C" {
 #include "fileinformation.h"
+#include "status.h"
 #include "storagetest.h"
 }
 
@@ -43,10 +44,10 @@ TEST(FileInformation, fill_structure) {
                             sizeof(unsigned char *) + sizeof(unsigned int) +
                             sizeof(unsigned char);
 
-        ASSERT_GE(fiSize(), size);
+        EXPECT_GE(fiSize(), size);
 
         char *path = (char *)("Some/Path/To/File");
-        size_t file_size {4096}, block_size {1024}, progress {512};
+        size_t file_size {4096}, block_size {1024};
         unsigned char byte = 0x8c;
         unsigned char sha_sum[SHA_SUM_LENGTH];
 
@@ -63,7 +64,6 @@ TEST(FileInformation, fill_structure) {
 
         fiSetFileSize(file_size, fi);
         fiSetBlockSize(block_size, fi);
-        fiSetProgress(progress, fi);
         fiSetContentConstant(byte, fi);
 
         ASSERT_STREQ(fiGetPath(fi), path);
@@ -73,7 +73,6 @@ TEST(FileInformation, fill_structure) {
         ASSERT_EQ(fiGetContentType(fi), RANDOM);
         ASSERT_EQ(fiGetFileSize(fi), file_size);
         ASSERT_EQ(fiGetBlockSize(fi), block_size);
-        ASSERT_EQ(fiGetProgress(fi), progress);
         ASSERT_EQ(fiGetContentConstant(fi), byte);
 
         fiFree(fi);
@@ -98,6 +97,11 @@ TEST(FileInformation, initArray) {
         }
 
         fiFreeArray(fis);
+}
+
+TEST(status, statusInit) {
+        Status *status = statusInit();
+	statusFree(status);
 }
 
 TEST(storagetest, checkShaSums) {

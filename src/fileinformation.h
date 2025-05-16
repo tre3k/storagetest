@@ -57,9 +57,6 @@ void fiSetFileSize(size_t size, FileInformation *file_info);
 size_t fiGetBlockSize(FileInformation *file_info);
 void fiSetBlockSize(size_t size, FileInformation *file_info);
 
-size_t fiGetProgress(FileInformation *file_info);
-void fiSetProgress(size_t progress, FileInformation *file_info);
-
 unsigned char fiGetContentConstant(FileInformation *file_info);
 void fiSetContentConstant(unsigned char byte, FileInformation *file_info);
 

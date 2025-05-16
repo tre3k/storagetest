@@ -20,30 +20,20 @@
  *
  */
 
-#ifndef _STORAGETEST_H_
-#define _STORAGETEST_H_
-
-#include <errno.h>
-#include <openssl/evp.h>
-#include <openssl/sha.h>
-#include <stddef.h>
-#include <stdlib.h>
-
-#include "config.h"
-#include "fileinformation.h"
 #include "status.h"
 
-bool checkShaSums(unsigned char *sha_sum1, unsigned char *sha_sum2);
+struct SStatus {
+        char *current_path_file;
+        int current_number_file;
+        size_t progress;             // in bytes
+        size_t average_write_speed;  // in bytes/sec.
+        size_t average_read_speed;
+        size_t current_write_speed;
+        size_t current_read_speed;
+};
 
-int writeFile(FileInformation *file_info, Status *status);
-int readFile(FileInformation *file_info, Status *status);
+Status *statusInit() { return malloc(sizeof(struct SStatus)); }
+void statusFree(Status *status) { free(status); }
 
-int writeFiles(FileInformation **file_infos, int count, Status *status);
-int readFiles(FileInformation **file_infos, int count, Status *status);
-int removeFiles(FileInformation **file_infos, int count, Status *status);
-
-int testInDirectory(
-    char *path, int files_count, int file_size, int block_size, Status *status);
-int testInDevice(char *path, int file_size, int block_size, Status *status);
-
-#endif
+char *statusGetCurrentFile(Status *status);
+int *statusGetCurrentNumberFile(Status *status);

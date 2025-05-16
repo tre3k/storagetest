@@ -73,6 +73,7 @@ configure_file(config.h.in ${PROJECT_SOURCE_DIR}/${SOURCES_SUBDIR}/config.h)
 add_library(${PROGRAM_NAME} STATIC
   ${SOURCES_SUBDIR}/storagetest.c
   ${SOURCES_SUBDIR}/fileinformation.c
+  ${SOURCES_SUBDIR}/status.c
   )
 
 add_executable(${PROGRAM_NAME}cli

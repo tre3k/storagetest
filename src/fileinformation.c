@@ -26,7 +26,6 @@
  * @path - path and name to file
  * @size - size of file
  * @block_size - size of block for read/written at a time
- * @progress - bytes of current writed/readed
  * @sha_sum - sha256/512 check sum
  * @content_type - see ContentType
  * @content_constant - value of bytes if not random
@@ -35,13 +34,13 @@ struct SFileInformation {
         char *path;
         size_t size;
         size_t block_size;
-        size_t progress;
+        size_t chunk;  // malloc(): unaligned tcache chunk detected ????
         unsigned char *sha_sum;
         unsigned int content_type;
         unsigned char content_constant;
 };
 
-size_t fiSize() { return sizeof(FileInformation); }
+size_t fiSize() { return sizeof(struct SFileInformation); }
 FileInformation *fiInit() { return malloc(fiSize()); }
 void fiFree(FileInformation *file_info) { free(file_info); }
 
@@ -83,11 +82,6 @@ size_t fiGetBlockSize(FileInformation *file_info) {
 }
 void fiSetBlockSize(size_t size, FileInformation *file_info) {
         file_info->block_size = size;
-}
-
-size_t fiGetProgress(FileInformation *file_info) { return file_info->progress; }
-void fiSetProgress(size_t progress, FileInformation *file_info) {
-        file_info->progress = progress;
 }
 
 unsigned char fiGetContentConstant(FileInformation *file_info) {

@@ -29,3 +29,14 @@ bool checkShaSums(unsigned char *sha_sum1, unsigned char *sha_sum2) {
 
         return true;
 }
+
+int testInDirectory(char *path,
+                    int files_count,
+                    int file_size,
+                    int block_size,
+                    Status *status) {
+        return 0;
+}
+int testInDevice(char *path, int file_size, int block_size, Status *status) {
+        return 0;
+}
