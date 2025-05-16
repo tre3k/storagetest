@@ -23,14 +23,44 @@
 #ifndef _FILEINFORMATION_H_
 #define _FILEINFORMATION_H_
 
+#include <openssl/sha.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "config.h"
+
+enum ContentType {
+        RANDOM,
+        CONSTANT
+};
 
 struct SFileInformation;
 typedef struct SFileInformation FileInformation;
 
-FileInformation *fileInformationInit();
-void fileInformationFree(FileInformation *file_info);
-size_t fileInformationSize(void);
+FileInformation *fiInit();
+void fiFree(FileInformation *file_info);
+size_t fiSize(void);
+
+const char *fiGetPath(FileInformation *file_info);
+void fiSetPath(char *path, FileInformation *file_info);
+
+const unsigned char *fiGetShaSum(FileInformation *file_info);
+void fiSetShaSum(unsigned char *sha_sum, FileInformation *file_info);
+
+enum ContentType fiGetContentType(FileInformation *file_info);
+void fiSetContentType(enum ContentType ct, FileInformation *file_info);
+
+size_t fiGetFileSize(FileInformation *file_info);
+void fiSetFileSize(size_t size, FileInformation *file_info);
+
+size_t fiGetBlockSize(FileInformation *file_info);
+void fiSetBlockSize(size_t size, FileInformation *file_info);
+
+size_t fiGetProgress(FileInformation *file_info);
+void fiSetProgress(size_t progress, FileInformation *file_info);
+
+unsigned char fiGetContentConstant(FileInformation *file_info);
+void fiSetContentConstant(unsigned char byte, FileInformation *file_info);
 
 #endif

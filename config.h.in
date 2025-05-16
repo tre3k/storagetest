@@ -35,11 +35,11 @@
 #if USE_SHA512
 #define EVP_SHA() EVP_sha512()
 #define SHA(d, n, md) SHA512(d, n, md)
-#define SHA_SUM_SIZE 64
+#define SHA_SUM_LENGTH SHA512_DIGEST_LENGTH
 #else
 #define EVP_SHA() EVP_sha256()
 #define SHA(d, n, md) SHA256(d, n, md)
-#define SHA_SUM_SIZE 32
+#define SHA_SUM_LENGTH SHA256_DIGEST_LENGTH
 #endif
 
 #define APPLICATION_NAME @APPLICATION_NAME@
