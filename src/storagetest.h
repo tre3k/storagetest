@@ -26,17 +26,26 @@
 #include <errno.h>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
+#include <pthread.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "config.h"
 #include "fileinformation.h"
 #include "status.h"
 
+typedef struct SThreadArg {
+        FileInformation *file_info;
+        Status *status;
+} ThreadArg;
+
 bool checkShaSums(unsigned char *sha_sum1, unsigned char *sha_sum2);
 
-int writeFile(FileInformation *file_info, Status *status);
-int readFile(FileInformation *file_info, Status *status);
+void *threadWriteFile(void *arg);
+
+pthread_t writeFile(FileInformation *file_info, Status *status);
+pthread_t readFile(FileInformation *file_info, Status *status);
 
 int writeFiles(FileInformation **file_infos, int count, Status *status);
 int readFiles(FileInformation **file_infos, int count, Status *status);
@@ -45,5 +54,8 @@ int removeFiles(FileInformation **file_infos, int count, Status *status);
 int testInDirectory(
     char *path, int files_count, int file_size, int block_size, Status *status);
 int testInDevice(char *path, int file_size, int block_size, Status *status);
+
+/* Функция обертка для текстов */
+int _mainStorageTest();
 
 #endif

@@ -101,7 +101,7 @@ TEST(FileInformation, initArray) {
 
 TEST(status, statusInit) {
         Status *status = statusInit();
-	statusFree(status);
+        statusFree(status);
 }
 
 TEST(storagetest, checkShaSums) {
@@ -123,6 +123,8 @@ TEST(storagetest, checkShaSums) {
 
         ASSERT_FALSE(checkShaSums(sha_sum1, sha_sum2));
 }
+
+TEST(storagetest, mainStorageTest) { ASSERT_EQ(_mainStorageTest(), 0); }
 
 int main(int argc, char *argv[]) {
         ::testing::InitGoogleTest(&argc, argv);

@@ -30,10 +30,16 @@ struct SStatus {
         size_t average_read_speed;
         size_t current_write_speed;
         size_t current_read_speed;
+        int value;
 };
 
 Status *statusInit() { return malloc(sizeof(struct SStatus)); }
 void statusFree(Status *status) { free(status); }
 
-char *statusGetCurrentFile(Status *status);
-int *statusGetCurrentNumberFile(Status *status);
+void statusSetProgress(Status *status, size_t progress) {
+        status->progress = progress;
+}
+size_t statusGetProgress(Status *status) { return status->progress; }
+
+void statusSetValue(Status *status, int value) { status->value = value; }
+int statusGetValue(Status *status) { return status->value; }

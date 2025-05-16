@@ -21,7 +21,7 @@
  */
 
 #ifndef _STATUS_H_
-#define	_STATUS_H_
+#define _STATUS_H_
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -31,5 +31,11 @@ typedef struct SStatus Status;
 
 Status *statusInit();
 void statusFree(Status *status);
+
+void statusSetProgress(Status *status, size_t progress);
+size_t statusGetProgress(Status *status);
+
+void statusSetValue(Status *status, int value);
+int statusGetValue(Status *status);
 
 #endif
