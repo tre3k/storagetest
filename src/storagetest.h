@@ -32,10 +32,12 @@
 #include "config.h"
 #include "fileinformation.h"
 
+bool checkShaSums(unsigned char *sha_sum1, unsigned char *sha_sum2);
+
 int writeFile(FileInformation *file_info);
 int readFile(FileInformation *file_info);
 
-int writeFiles(FileInformation *file_infos[]);
-int readFiles(FileInformation *file_infos[]);
+int writeFiles(FileInformation *file_infos[], int count);
+int readFiles(FileInformation *file_infos[], int count);
 
 #endif

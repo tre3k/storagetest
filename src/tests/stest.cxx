@@ -22,6 +22,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <openssl/sha.h>
 
 #include <random>
 
@@ -29,6 +30,7 @@
 
 extern "C" {
 #include "fileinformation.h"
+#include "storagetest.h"
 }
 
 TEST(FileInformation, fill_structure) {
@@ -75,6 +77,26 @@ TEST(FileInformation, fill_structure) {
         ASSERT_EQ(fiGetContentConstant(fi), byte);
 
         fiFree(fi);
+}
+
+TEST(storagetest, checkShaSums) {
+        std::mt19937 engine;
+        unsigned char sha_sum1[SHA_SUM_LENGTH], sha_sum2[SHA_SUM_LENGTH];
+        engine.seed(std::time(nullptr));
+        for (int i = 0; i < SHA_SUM_LENGTH; i++) {
+                auto rnd_val = 0xff * engine() / (engine.max() - engine.min());
+                sha_sum1[i] = rnd_val;
+                sha_sum2[i] = sha_sum1[i];
+        }
+
+        ASSERT_TRUE(checkShaSums(sha_sum1, sha_sum2));
+
+        for (int i = 0; i < SHA_SUM_LENGTH; i++) {
+                auto rnd_val = 0xff * engine() / (engine.max() - engine.min());
+                sha_sum1[i] = rnd_val;
+        }
+
+        ASSERT_FALSE(checkShaSums(sha_sum1, sha_sum2));
 }
 
 int main(int argc, char *argv[]) {

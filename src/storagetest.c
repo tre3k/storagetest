@@ -21,3 +21,11 @@
  */
 
 #include "storagetest.h"
+
+bool checkShaSums(unsigned char *sha_sum1, unsigned char *sha_sum2) {
+        unsigned int i;
+        for (i = 0; i < SHA_SUM_LENGTH; i++)
+                if (sha_sum1[i] != sha_sum2[i]) return false;
+
+        return true;
+}
