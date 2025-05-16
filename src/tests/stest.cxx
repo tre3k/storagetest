@@ -23,14 +23,21 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+extern "C" {
 #include "fileinformation.h"
+}
 
+TEST(FileInformation, fileInformationSize) {
+        std::cout << "FileInformation size on current system: "
+                  << fileInformationSize() << " bytes." << std::endl;
+        FileInformation *fi = fileInformationInit();
+        fileInformationFree(fi);
 
-TEST(storagetest, writeFile) {
-        // Expect two strings not to be equal.
-        EXPECT_STRNE("hello", "world");
-        // Expect equality.
-        EXPECT_EQ(7 * 6, 42);
+        unsigned int size = sizeof(char *) + 3 * sizeof(size_t) +
+                            sizeof(unsigned char *) + sizeof(unsigned int) +
+                            sizeof(unsigned char);
+
+        ASSERT_GE(fileInformationSize(), size);
 }
 
 int main(int argc, char *argv[]) {

@@ -25,13 +25,16 @@ set(PROGRAM_NAME storagetest)
 project(${PROGRAM_NAME})
 set(SOURCES_SUBDIR src)
 
-set(INCLUDES
-  ${PROJECT_SOURCE_DIR}/${SOURCES_SUBDIR}
-  )
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+
+set(INCLUDES
+  ${PROJECT_SOURCE_DIR}/${SOURCES_SUBDIR}
+  )
+set(LIBS_PATH
+  ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
+  )
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_CXX_STANDARD 23)
@@ -42,6 +45,7 @@ find_library(CRYPTO_LIB crypto)
 find_library(PTHREAD_LIB pthread)
 
 include_directories(${INCLUDES})
+link_directories(${LIBS_PATH})
 
 execute_process(
   COMMAND "git" "describe" "--always" "--tags"
@@ -75,10 +79,11 @@ add_executable(${PROGRAM_NAME}cli
   ${SOURCES_SUBDIR}/main.c
   )
 
-target_link_libraries(${PROGRAM_NAME}
+target_link_libraries(${PROGRAM_NAME}cli
   ${SSL_LIB}
   ${CRYPTO_LIB}
   ${PTHREAD_LIB}
+  storagetest
   )
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/${SOURCES_SUBDIR}/tests)

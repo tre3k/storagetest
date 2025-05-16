@@ -32,6 +32,7 @@ target_link_libraries(
   stest
   ${GTEST}
   ${GMOCK}
+  storagetest
   )
 
 include(GoogleTest)
