@@ -79,6 +79,27 @@ TEST(FileInformation, fill_structure) {
         fiFree(fi);
 }
 
+TEST(FileInformation, initArray) {
+        auto count {4};
+        FileInformation **fis = fiInitArray(count);
+
+        const char *paths[] = {"file0", "file1", "file2", "file3", "file4"};
+        unsigned char content[] = {0x00, 0x01, 0x02, 0x03, 0x04};
+
+        for (int i = 0; i < count; i++) {
+                fiSetPath((char *)(paths[i]), fiGetFromArray(fis, i));
+                fiSetContentConstant(content[i], fiGetFromArray(fis, i));
+        }
+
+        for (int i = 0; i < count; i++) {
+                ASSERT_STREQ(fiGetPath(fiGetFromArray(fis, i)), paths[i]);
+                ASSERT_EQ(fiGetContentConstant(fiGetFromArray(fis, i)),
+                          content[i]);
+        }
+
+        fiFreeArray(fis);
+}
+
 TEST(storagetest, checkShaSums) {
         std::mt19937 engine;
         unsigned char sha_sum1[SHA_SUM_LENGTH], sha_sum2[SHA_SUM_LENGTH];

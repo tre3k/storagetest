@@ -63,4 +63,8 @@ void fiSetProgress(size_t progress, FileInformation *file_info);
 unsigned char fiGetContentConstant(FileInformation *file_info);
 void fiSetContentConstant(unsigned char byte, FileInformation *file_info);
 
+FileInformation **fiInitArray(int count);
+void fiFreeArray(FileInformation **file_infos);
+FileInformation *fiGetFromArray(FileInformation **fi_array, int element);
+
 #endif

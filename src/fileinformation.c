@@ -97,3 +97,14 @@ unsigned char fiGetContentConstant(FileInformation *file_info) {
 void fiSetContentConstant(unsigned char byte, FileInformation *file_info) {
         file_info->content_constant = byte;
 }
+
+FileInformation **fiInitArray(int count) {
+        FileInformation **retval = malloc(count * fiSize());
+        return retval;
+}
+
+void fiFreeArray(FileInformation **fi_array) { free(fi_array); }
+
+FileInformation *fiGetFromArray(FileInformation **fi_array, int element) {
+        return (FileInformation *)(fi_array + element * fiSize());
+}
