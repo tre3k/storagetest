@@ -135,9 +135,9 @@ TEST(storagetest, writeFileTest) {
         FileInformation *file_info = fiInit();
         Status *status = statusInit();
 
-        fiSetPath((char *)"/run/media/kirill/41AF-9122/1.raw", file_info);
+        fiSetPath((char *)"/mnt/virtualfs/1.raw", file_info);
         // 10 MiB write
-        fiSetFileSize(1024 * 1024 * 1024, file_info);
+        fiSetFileSize(10 * 1024 * 1024, file_info);
         fiSetBlockSize(FILE_BLOCK_SIZE_DEFAULT, file_info);
         fiSetContentType(CONSTANT, file_info);
         fiSetContentConstant(0xa1, file_info);
@@ -156,7 +156,9 @@ TEST(storagetest, writeFileTest) {
         }
         pthread_join(tid, NULL);
         std::cout << "Average speed: " << statusGetAverageWSpeed(status)
-                  << " bytes/s.";
+                  << " bytes/s." << std::endl;
+        std::cout << "Actual size: " << fiGetActualSize(file_info) << " bytes."
+                  << std::endl;
 
         if (statusGetValue(status) == 2)
                 std::cout << "device is full" << std::endl;

@@ -22,8 +22,6 @@
 
 #include "storagetest.h"
 
-#include "status.h"
-
 void *_threadWriteFile(void *arg) {
         int i, j;
         clock_t astart, astop, cstop;
@@ -84,9 +82,7 @@ void *_threadWriteFile(void *arg) {
                 current_bytes_per_sec =
                     (double)current_size * CLOCKS_PER_SEC / (cstop - astart);
                 statusSetCurrentWSpeed(targ->status, current_bytes_per_sec);
-
                 statusSetProgress(targ->status, current_size);
-
                 EVP_DigestUpdate(mdctx, buff, writed);
         }
 
@@ -95,7 +91,7 @@ void *_threadWriteFile(void *arg) {
         average_bytes_per_sec =
             (double)current_size * CLOCKS_PER_SEC / (astop - astart);
         statusSetAverageWSpeed(targ->status, average_bytes_per_sec);
-
+        fiSetActualSize(targ->file_info, current_size);
         EVP_DigestFinal_ex(mdctx, sha_sum, &sha_size);
         fiSetShaSum(sha_sum, targ->file_info);
 
@@ -115,6 +111,7 @@ void *_threadWriteFile(void *arg) {
                         statusSetValue(targ->status, -errno);
                         break;
         }
+        fiSetActualSize(targ->file_info, current_size);
         pthread_exit(0);
 }
 
