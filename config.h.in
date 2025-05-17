@@ -23,6 +23,8 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+#define PATH_MAX_LENGHT 4096
+
 /*!
  * Изспользовать ли sha256 или sha512
  * Оказывается что на моей машине sha512 работает быстрее чем sha256

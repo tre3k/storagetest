@@ -47,7 +47,7 @@ void fiFree(FileInformation *file_info) { free(file_info); }
 const char *fiGetPath(FileInformation *file_info) { return file_info->path; }
 
 void fiSetPath(char *path, FileInformation *file_info) {
-        file_info->path = malloc(strnlen(path, 4096) + 1);
+        file_info->path = malloc(strnlen(path, PATH_MAX_LENGHT) + 1);
         strcpy(file_info->path, path);
 }
 

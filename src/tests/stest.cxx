@@ -103,6 +103,11 @@ TEST(FileInformation, initArray) {
 
 TEST(status, statusInit) {
         Status *status = statusInit();
+
+        const char *path = "Some/File/Path";
+        statusSetFilePath(status, path);
+        ASSERT_STREQ(path, statusGetFilePath(status));
+
         statusFree(status);
 }
 

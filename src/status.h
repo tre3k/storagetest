@@ -25,6 +25,9 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "config.h"
 
 struct SStatus;
 typedef struct SStatus Status;
@@ -32,10 +35,29 @@ typedef struct SStatus Status;
 Status *statusInit();
 void statusFree(Status *status);
 
+char *statusGetFilePath(Status *status);
+void statusSetFilePath(Status *status, const char *path);
+
 void statusSetProgress(Status *status, size_t progress);
 size_t statusGetProgress(Status *status);
 
+void statusSetAverageWSpeed(Status *status, size_t average_write_speed);
+size_t statusGetAverageWSpeed(Status *status);
+
+void statusSetAverageRSpeed(Status *status, size_t average_read_speed);
+size_t statusGetAverageRSpeed(Status *status);
+
+void statusSetCurrentWSpeed(Status *status, size_t current_write_speed);
+size_t statusGetCurrentWSpeed(Status *status);
+
+void statusSetCurrentRSpeed(Status *status, size_t current_read_speed);
+size_t statusGetCurrentRSpeed(Status *status);
+
 void statusSetValue(Status *status, int value);
 int statusGetValue(Status *status);
+
+void statusResetCurrentNumber(Status *status);
+int statusGetCurrentNumber(Status *status);
+void statusIncrementCurrentNumber(Status *status);
 
 #endif
