@@ -135,23 +135,28 @@ TEST(storagetest, writeFileTest) {
         FileInformation *file_info = fiInit();
         Status *status = statusInit();
 
-        fiSetPath((char *)"/tmp/test", file_info);
+        fiSetPath((char *)"/run/media/kirill/41AF-9122/1.raw", file_info);
         // 10 MiB write
-        fiSetFileSize(10 * 1024 * 1024, file_info);
+        fiSetFileSize(1024 * 1024 * 1024, file_info);
         fiSetBlockSize(FILE_BLOCK_SIZE_DEFAULT, file_info);
         fiSetContentType(CONSTANT, file_info);
         fiSetContentConstant(0xa1, file_info);
 
         statusSetValue(status, 0);
+        statusResetCurrentNumber(status);
 
         ThreadArg *targ;
         pthread_t tid = writeFile(file_info, status);
         while (statusGetValue(status) == 0) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                std::cout << "Progress: " << statusGetProgress(status) << " / "
-                          << fiGetFileSize(file_info) << " bytes." << std::endl;
+                std::cout << "Write progress: " << statusGetProgress(status)
+                          << " / " << fiGetFileSize(file_info) << " bytes. "
+                          << statusGetCurrentWSpeed(status) << " bytes/s."
+                          << std::endl;
         }
         pthread_join(tid, NULL);
+        std::cout << "Average speed: " << statusGetAverageWSpeed(status)
+                  << " bytes/s.";
 
         if (statusGetValue(status) == 2)
                 std::cout << "device is full" << std::endl;

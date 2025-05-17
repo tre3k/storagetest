@@ -29,6 +29,12 @@
 
 #include "config.h"
 
+enum StatusValues {
+        BUSY,
+        DONE,
+        DEVICE_IS_FULL
+};
+
 struct SStatus;
 typedef struct SStatus Status;
 
@@ -41,17 +47,17 @@ void statusSetFilePath(Status *status, const char *path);
 void statusSetProgress(Status *status, size_t progress);
 size_t statusGetProgress(Status *status);
 
-void statusSetAverageWSpeed(Status *status, size_t average_write_speed);
-size_t statusGetAverageWSpeed(Status *status);
+void statusSetAverageWSpeed(Status *status, double average_write_speed);
+double statusGetAverageWSpeed(Status *status);
 
-void statusSetAverageRSpeed(Status *status, size_t average_read_speed);
-size_t statusGetAverageRSpeed(Status *status);
+void statusSetAverageRSpeed(Status *status, double average_read_speed);
+double statusGetAverageRSpeed(Status *status);
 
-void statusSetCurrentWSpeed(Status *status, size_t current_write_speed);
-size_t statusGetCurrentWSpeed(Status *status);
+void statusSetCurrentWSpeed(Status *status, double current_write_speed);
+double statusGetCurrentWSpeed(Status *status);
 
-void statusSetCurrentRSpeed(Status *status, size_t current_read_speed);
-size_t statusGetCurrentRSpeed(Status *status);
+void statusSetCurrentRSpeed(Status *status, double current_read_speed);
+double statusGetCurrentRSpeed(Status *status);
 
 void statusSetValue(Status *status, int value);
 int statusGetValue(Status *status);

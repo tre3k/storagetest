@@ -22,17 +22,24 @@
 
 #include "storagetest.h"
 
+#include "status.h"
+
 void *_threadWriteFile(void *arg) {
+        int i, j;
+        clock_t astart, astop, cstop;
+        size_t average_bytes_per_sec;
+        size_t current_bytes_per_sec;
+
         ThreadArg *targ = arg;
-        /* 0 - BUSY, 1 - DONE enum need create */
-        statusSetValue(targ->status, 0);
+        statusSetValue(targ->status, BUSY);
 
         const char *filepath = fiGetPath(targ->file_info);
         size_t file_size = fiGetFileSize(targ->file_info);
         size_t block_size = fiGetBlockSize(targ->file_info);
         enum ContentType type = fiGetContentType(targ->file_info);
 
-        int i, j;
+        statusSetFilePath(targ->status, filepath);
+        statusIncrementCurrentNumber(targ->status);
 
         unsigned char *buff = malloc(sizeof(unsigned char) * block_size);
         if (type == CONSTANT) {
@@ -53,6 +60,7 @@ void *_threadWriteFile(void *arg) {
         unsigned int sha_size;
         EVP_DigestInit_ex(mdctx, md, NULL);
 
+        astart = clock();
         int file =
             open(filepath, O_CREAT | O_WRONLY, S_IWUSR | S_IRUSR | S_IRGRP);
 
@@ -68,14 +76,25 @@ void *_threadWriteFile(void *arg) {
                 }
 
                 writed = write(file, buff, block_size);
+                cstop = clock();
+
                 if (writed < 0) break;
                 current_size += writed;
+
+                current_bytes_per_sec =
+                    (double)current_size * CLOCKS_PER_SEC / (cstop - astart);
+                statusSetCurrentWSpeed(targ->status, current_bytes_per_sec);
+
                 statusSetProgress(targ->status, current_size);
 
                 EVP_DigestUpdate(mdctx, buff, writed);
         }
 
         close(file);
+        astop = clock();
+        average_bytes_per_sec =
+            (double)current_size * CLOCKS_PER_SEC / (astop - astart);
+        statusSetAverageWSpeed(targ->status, average_bytes_per_sec);
 
         EVP_DigestFinal_ex(mdctx, sha_sum, &sha_size);
         fiSetShaSum(sha_sum, targ->file_info);
@@ -85,11 +104,11 @@ void *_threadWriteFile(void *arg) {
 
         switch (errno) {
                 case 0:
-                        statusSetValue(targ->status, 1);
+                        statusSetValue(targ->status, DONE);
                         break;
 
                 case ENOSPC:
-                        statusSetValue(targ->status, 2);
+                        statusSetValue(targ->status, DEVICE_IS_FULL);
                         break;
 
                 default:
