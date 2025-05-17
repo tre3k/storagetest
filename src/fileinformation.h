@@ -64,4 +64,7 @@ FileInformation **fiInitArray(int count);
 void fiFreeArray(FileInformation **file_infos);
 FileInformation *fiGetFromArray(FileInformation **fi_array, int element);
 
+size_t fiGetActualSize(FileInformation *file_info);
+void fiSetActualSize(FileInformation *file_info, size_t size);
+
 #endif

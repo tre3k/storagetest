@@ -34,14 +34,20 @@ struct SFileInformation {
         char *path;
         size_t size;
         size_t block_size;
-        size_t chunk;  // malloc(): unaligned tcache chunk detected ????
+        size_t actual_size;
         unsigned char *sha_sum;
         unsigned int content_type;
         unsigned char content_constant;
 };
 
 size_t fiSize() { return sizeof(struct SFileInformation); }
-FileInformation *fiInit() { return malloc(fiSize()); }
+
+FileInformation *fiInit() {
+        FileInformation *retval = malloc(fiSize());
+        retval->actual_size = 0;
+        return retval;
+}
+
 void fiFree(FileInformation *file_info) { free(file_info); }
 
 const char *fiGetPath(FileInformation *file_info) { return file_info->path; }
@@ -101,4 +107,12 @@ void fiFreeArray(FileInformation **fi_array) { free(fi_array); }
 
 FileInformation *fiGetFromArray(FileInformation **fi_array, int element) {
         return (FileInformation *)(fi_array + element * fiSize());
+}
+
+size_t fiGetActualSize(FileInformation *file_info) {
+        return file_info->actual_size;
+}
+
+void fiSetActualSize(FileInformation *file_info, size_t size) {
+        file_info->actual_size = size;
 }
