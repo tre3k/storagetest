@@ -24,6 +24,7 @@
 #define _STORAGETEST_H_
 
 #include <errno.h>
+#include <fcntl.h>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <pthread.h>
@@ -42,20 +43,18 @@ typedef struct SThreadArg {
 
 bool checkShaSums(unsigned char *sha_sum1, unsigned char *sha_sum2);
 
-void *threadWriteFile(void *arg);
+void *_threadWriteFile(void *arg);
+void *threadReadFile(void *arg);
 
 pthread_t writeFile(FileInformation *file_info, Status *status);
 pthread_t readFile(FileInformation *file_info, Status *status);
 
-int writeFiles(FileInformation **file_infos, int count, Status *status);
-int readFiles(FileInformation **file_infos, int count, Status *status);
+pthread_t writeFiles(FileInformation **file_infos, int count, Status *status);
+pthread_t readFiles(FileInformation **file_infos, int count, Status *status);
 int removeFiles(FileInformation **file_infos, int count, Status *status);
 
 int testInDirectory(
     char *path, int files_count, int file_size, int block_size, Status *status);
 int testInDevice(char *path, int file_size, int block_size, Status *status);
-
-/* Функция обертка для текстов */
-int _mainStorageTest();
 
 #endif

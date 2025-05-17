@@ -24,7 +24,9 @@
 #include <gtest/gtest.h>
 #include <openssl/sha.h>
 
+#include <chrono>
 #include <random>
+#include <thread>
 
 #include "config.h"
 
@@ -124,7 +126,42 @@ TEST(storagetest, checkShaSums) {
         ASSERT_FALSE(checkShaSums(sha_sum1, sha_sum2));
 }
 
-TEST(storagetest, mainStorageTest) { ASSERT_EQ(_mainStorageTest(), 0); }
+TEST(storagetest, writeFileTest) {
+        FileInformation *file_info = fiInit();
+        Status *status = statusInit();
+
+        fiSetPath((char *)"/tmp/test", file_info);
+        // 10 MiB write
+        fiSetFileSize(10 * 1024 * 1024, file_info);
+        fiSetBlockSize(FILE_BLOCK_SIZE_DEFAULT, file_info);
+        fiSetContentType(CONSTANT, file_info);
+        fiSetContentConstant(0xa1, file_info);
+
+        statusSetValue(status, 0);
+
+        ThreadArg *targ;
+        pthread_t tid = writeFile(file_info, status);
+        while (statusGetValue(status) == 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                std::cout << "Progress: " << statusGetProgress(status) << " / "
+                          << fiGetFileSize(file_info) << " bytes." << std::endl;
+        }
+        pthread_join(tid, NULL);
+
+        if (statusGetValue(status) == 2)
+                std::cout << "device is full" << std::endl;
+
+        if (statusGetValue(status) < 0)
+                std::cout << "ERRNO: " << -statusGetValue(status) << std::endl;
+
+        std::cout << "Sha sum: " << std::hex;
+
+        const unsigned char *sha_sum = fiGetShaSum(file_info);
+        for (int i = 0; i < SHA_SUM_LENGTH; i++)
+                std::cout << (unsigned int)(0xff & sha_sum[i]);
+
+        std::cout << std::dec << std::endl;
+}
 
 int main(int argc, char *argv[]) {
         ::testing::InitGoogleTest(&argc, argv);

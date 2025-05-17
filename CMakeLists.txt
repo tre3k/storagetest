@@ -76,6 +76,12 @@ add_library(${PROGRAM_NAME} STATIC
   ${SOURCES_SUBDIR}/status.c
   )
 
+target_link_libraries(${PROGRAM_NAME}
+  ${SSL_LIB}
+  ${CRYPTO_LIB}
+  ${PTHREAD_LIB}
+  )
+
 add_executable(${PROGRAM_NAME}cli
   ${SOURCES_SUBDIR}/main.c
   )

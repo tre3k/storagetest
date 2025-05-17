@@ -22,26 +22,80 @@
 
 #include "storagetest.h"
 
-#include "fileinformation.h"
-
-void *threadWriteFile(void *arg) {
+void *_threadWriteFile(void *arg) {
         ThreadArg *targ = arg;
+        /* 0 - BUSY, 1 - DONE enum need create */
+        statusSetValue(targ->status, 0);
+
         const char *filepath = fiGetPath(targ->file_info);
         size_t file_size = fiGetFileSize(targ->file_info);
         size_t block_size = fiGetBlockSize(targ->file_info);
+        enum ContentType type = fiGetContentType(targ->file_info);
+
+        int i, j;
 
         unsigned char *buff = malloc(sizeof(unsigned char) * block_size);
-
-        /* 1 - BUSY, 0 - DONE enum need create */
-        statusSetValue(targ->status, 1);
-
-        /* Here file write impl. need */
-        for (int i = 0; i < 10; i++) {
-                statusSetProgress(targ->status, i);
-                sleep(1);
+        if (type == CONSTANT) {
+                for (i = 0; i < block_size; i++)
+                        buff[i] = fiGetContentConstant(targ->file_info);
         }
 
-        statusSetValue(targ->status, 0);
+        if (type == RANDOM) srand(time(0));
+
+        size_t current_size = 0;
+        ssize_t writed;
+        long int segments = file_size / block_size;
+        size_t last_segment = file_size % block_size;
+
+        EVP_MD_CTX *mdctx = EVP_MD_CTX_create();
+        const EVP_MD *md = EVP_SHA();
+        unsigned char *sha_sum = malloc(SHA_SUM_LENGTH);
+        unsigned int sha_size;
+        EVP_DigestInit_ex(mdctx, md, NULL);
+
+        int file =
+            open(filepath, O_CREAT | O_WRONLY, S_IWUSR | S_IRUSR | S_IRGRP);
+
+        for (i = 0; i < segments + 1; i++) {
+                if (i == segments) {
+                        block_size = last_segment;
+                        if (block_size == 0) break;
+                }
+                if (type == RANDOM) {
+                        for (j = 0; j < block_size; j++) {
+                                buff[j] = rand() % 255;
+                        }
+                }
+
+                writed = write(file, buff, block_size);
+                if (writed < 0) break;
+                current_size += writed;
+                statusSetProgress(targ->status, current_size);
+
+                EVP_DigestUpdate(mdctx, buff, writed);
+        }
+
+        close(file);
+
+        EVP_DigestFinal_ex(mdctx, sha_sum, &sha_size);
+        fiSetShaSum(sha_sum, targ->file_info);
+
+        free(mdctx);
+        free(sha_sum);
+
+        switch (errno) {
+                case 0:
+                        statusSetValue(targ->status, 1);
+                        break;
+
+                case ENOSPC:
+                        statusSetValue(targ->status, 2);
+                        break;
+
+                default:
+                        statusSetValue(targ->status, -errno);
+                        break;
+        }
         pthread_exit(0);
 }
 
@@ -54,7 +108,7 @@ pthread_t writeFile(FileInformation *file_info, Status *status) {
         arg->file_info = file_info;
         arg->status = status;
 
-        pthread_create(&tid, &thattr, threadWriteFile, arg);
+        pthread_create(&tid, &thattr, _threadWriteFile, arg);
 
         return tid;
 }
@@ -77,24 +131,5 @@ int testInDirectory(char *path,
 }
 
 int testInDevice(char *path, int file_size, int block_size, Status *status) {
-        return 0;
-}
-
-int _mainStorageTest() {
-        FileInformation *file_info = fiInit();
-        Status *status = statusInit();
-
-        fiSetPath("/tmp/test", file_info);
-        fiSetFileSize(1024, file_info);
-        fiSetBlockSize(32, file_info);
-
-        ThreadArg *targ;
-        pthread_t tid = writeFile(file_info, status);
-        while (statusGetValue(status) != 0) {
-                sleep(1);
-                printf("Progress: %ld\n", statusGetProgress(status));
-        }
-        pthread_join(tid, NULL);
-
         return 0;
 }
