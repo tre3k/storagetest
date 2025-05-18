@@ -22,7 +22,10 @@
 
 #include "storagetest.h"
 
-void *_threadWriteFile(void *arg) {
+static void *_threadWriteFile(void *arg);
+static void *_threadReadFile(void *arg);
+
+static void *_threadWriteFile(void *arg) {
         int i, j;
         clock_t astart, astop, cstop;
         size_t average_bytes_per_sec;
@@ -115,7 +118,18 @@ void *_threadWriteFile(void *arg) {
         pthread_exit(0);
 }
 
-pthread_t writeFile(FileInformation *file_info, Status *status) {
+static void *_threadReadFile(void *arg) {
+        ThreadArg *targ = arg;
+        const char *filepath = fiGetPath(targ->file_info);
+
+	int file = open(filepath, O_RDONLY);
+
+        pthread_exit(0);
+}
+
+static pthread_t _createThread(FileInformation *file_info,
+                               Status *status,
+                               void *(*start_runtine)(void *arg)) {
         pthread_t tid;
         pthread_attr_t thattr;
         pthread_attr_init(&thattr);
@@ -124,9 +138,16 @@ pthread_t writeFile(FileInformation *file_info, Status *status) {
         arg->file_info = file_info;
         arg->status = status;
 
-        pthread_create(&tid, &thattr, _threadWriteFile, arg);
-
+        pthread_create(&tid, &thattr, start_runtine, arg);
         return tid;
+}
+
+pthread_t writeFile(FileInformation *file_info, Status *status) {
+        return _createThread(file_info, status, _threadWriteFile);
+}
+
+pthread_t readFile(FileInformation *file_info, Status *status) {
+        return _createThread(file_info, status, _threadReadFile);
 }
 
 bool checkShaSums(unsigned char *sha_sum1, unsigned char *sha_sum2) {

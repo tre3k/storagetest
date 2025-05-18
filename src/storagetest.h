@@ -44,9 +44,6 @@ typedef struct SThreadArg {
 
 bool checkShaSums(unsigned char *sha_sum1, unsigned char *sha_sum2);
 
-void *_threadWriteFile(void *arg);
-void *threadReadFile(void *arg);
-
 pthread_t writeFile(FileInformation *file_info, Status *status);
 pthread_t readFile(FileInformation *file_info, Status *status);
 
