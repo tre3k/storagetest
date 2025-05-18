@@ -154,6 +154,7 @@ static void *_threadReadFile(void *arg) {
                 current_bytes_per_sec =
                     (double)actual_size * CLOCKS_PER_SEC / (cstop - astart);
                 statusSetCurrentRSpeed(targ->status, current_bytes_per_sec);
+                statusSetProgress(targ->status, actual_size);
 
                 EVP_DigestUpdate(mdctx, buff, current_read);
         } while (current_read > 0);
@@ -221,4 +222,12 @@ int testInDirectory(char *path,
 
 int testInDevice(char *path, int file_size, int block_size, Status *status) {
         return 0;
+}
+
+const char *fileNameGenerator(void) {
+        uuid_t binuuid;
+        uuid_generate(binuuid);
+        char *uuid = malloc(37);
+        uuid_unparse(binuuid, uuid);
+        return uuid;
 }

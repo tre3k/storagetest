@@ -208,6 +208,15 @@ TEST(storagetest, writeReadFileTest) {
                                  (unsigned char *)readed_sha_sum));
 }
 
+TEST(storagetest, UUIDFileNames) {
+        auto uuid_name1 = fileNameGenerator();
+        auto uuid_name2 = fileNameGenerator();
+        std::cout << "UUID file names: " << std::endl
+                  << uuid_name1 << std::endl
+                  << uuid_name2 << std::endl;
+        ASSERT_STRNE(uuid_name1, uuid_name2);
+}
+
 int main(int argc, char *argv[]) {
         ::testing::InitGoogleTest(&argc, argv);
         ::testing::InitGoogleMock(&argc, argv);

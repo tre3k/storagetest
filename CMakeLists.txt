@@ -43,6 +43,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 find_library(SSL_LIB ssl)
 find_library(CRYPTO_LIB crypto)
 find_library(PTHREAD_LIB pthread)
+find_library(UUID_LIB uuid)
 
 include_directories(${INCLUDES})
 link_directories(${LIBS_PATH})
@@ -80,6 +81,7 @@ target_link_libraries(${PROGRAM_NAME}
   ${SSL_LIB}
   ${CRYPTO_LIB}
   ${PTHREAD_LIB}
+  ${UUID_LIB}
   )
 
 add_executable(${PROGRAM_NAME}cli

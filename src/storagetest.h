@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <uuid/uuid.h>
 
 #include "config.h"
 #include "fileinformation.h"
@@ -54,5 +55,7 @@ int removeFiles(FileInformation **file_infos, int count, Status *status);
 int testInDirectory(
     char *path, int files_count, int file_size, int block_size, Status *status);
 int testInDevice(char *path, int file_size, int block_size, Status *status);
+
+const char *fileNameGenerator(void);
 
 #endif
