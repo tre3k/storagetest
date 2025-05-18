@@ -66,4 +66,10 @@ void statusResetCurrentNumber(Status *status);
 int statusGetCurrentNumber(Status *status);
 void statusIncrementCurrentNumber(Status *status);
 
+void statusIncrProgressToAmounWrited(Status *status);
+void statusIncrProgressToAmounRead(Status *status);
+void statusResetAmountReadWriete(Status *status);
+size_t statusGetAmountWrited(Status *status);
+size_t statusGetAmountRead(Status *status);
+
 #endif

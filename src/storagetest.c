@@ -98,6 +98,7 @@ static void *_threadWriteFile(void *arg) {
             (double)current_size * CLOCKS_PER_SEC / (astop - astart);
         statusSetAverageWSpeed(targ->status, average_bytes_per_sec);
         fiSetActualSize(targ->file_info, current_size);
+        statusIncrProgressToAmounWrited(targ->status);
         EVP_DigestFinal_ex(mdctx, sha_sum, &sha_size);
         fiSetShaSum(sha_sum, targ->file_info);
 
@@ -164,6 +165,7 @@ static void *_threadReadFile(void *arg) {
         statusSetAverageRSpeed(targ->status, average_bytes_per_sec);
 
         fiSetActualSize(targ->file_info, actual_size);
+        statusIncrProgressToAmounRead(targ->status);
         EVP_DigestFinal_ex(mdctx, sha_sum, &sha_size);
         fiSetShaSum(sha_sum, targ->file_info);
 

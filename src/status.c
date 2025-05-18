@@ -40,10 +40,16 @@ struct SStatus {
         double average_read_speed;
         double current_write_speed;
         double current_read_speed;
+        size_t amount_writed;
+        size_t amount_read;
         int value;
 };
 
-Status *statusInit() { return malloc(sizeof(struct SStatus)); }
+Status *statusInit() {
+        Status *retval = malloc(sizeof(struct SStatus));
+        statusResetAmountReadWriete(retval);
+        return retval;
+}
 void statusFree(Status *status) { free(status); }
 
 char *statusGetFilePath(Status *status) { return status->current_path_file; }
@@ -107,3 +113,19 @@ int statusGetCurrentNumber(Status *status) {
 void statusIncrementCurrentNumber(Status *status) {
         status->current_number_file++;
 }
+
+void statusIncrProgressToAmounWrited(Status *status) {
+        status->amount_writed += status->progress;
+}
+
+void statusIncrProgressToAmounRead(Status *status) {
+        status->amount_read += status->progress;
+}
+
+void statusResetAmountReadWriete(Status *status) {
+        status->amount_read = 0;
+        status->amount_writed = 0;
+}
+
+size_t statusGetAmountWrited(Status *status) { return status->amount_writed; }
+size_t statusGetAmountRead(Status *status) { return status->amount_read; }
