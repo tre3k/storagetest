@@ -24,12 +24,15 @@
 
 static void *_threadWriteFile(void *arg);
 static void *_threadReadFile(void *arg);
+static pthread_t _createThread(FileInformation *file_info,
+                               Status *status,
+                               void *(*start_runtine)(void *arg));
 
 static void *_threadWriteFile(void *arg) {
         int i, j;
         clock_t astart, astop, cstop;
-        size_t average_bytes_per_sec;
-        size_t current_bytes_per_sec;
+        double average_bytes_per_sec;
+        double current_bytes_per_sec;
 
         ThreadArg *targ = arg;
         statusSetValue(targ->status, BUSY);
@@ -119,11 +122,61 @@ static void *_threadWriteFile(void *arg) {
 }
 
 static void *_threadReadFile(void *arg) {
+        clock_t astart, astop, cstop;
+        double average_bytes_per_sec;
+        double current_bytes_per_sec;
+
         ThreadArg *targ = arg;
+        statusSetValue(targ->status, BUSY);
+
         const char *filepath = fiGetPath(targ->file_info);
 
-	int file = open(filepath, O_RDONLY);
+        statusSetFilePath(targ->status, filepath);
+        statusIncrementCurrentNumber(targ->status);
 
+        int file = open(filepath, O_RDONLY);
+        size_t block_size = fiGetBlockSize(targ->file_info);
+        unsigned char *buff = malloc(sizeof(unsigned char) * block_size);
+
+        EVP_MD_CTX *mdctx = EVP_MD_CTX_create();
+        const EVP_MD *md = EVP_SHA();
+        unsigned char *sha_sum = malloc(SHA_SUM_LENGTH);
+        unsigned int sha_size;
+        EVP_DigestInit_ex(mdctx, md, NULL);
+
+        ssize_t current_read;
+        ssize_t actual_size = 0;
+        astart = clock();
+        do {
+                current_read = read(file, buff, block_size);
+                cstop = clock();
+                actual_size += current_read;
+                current_bytes_per_sec =
+                    (double)actual_size * CLOCKS_PER_SEC / (cstop - astart);
+                statusSetCurrentRSpeed(targ->status, current_bytes_per_sec);
+
+                EVP_DigestUpdate(mdctx, buff, current_read);
+        } while (current_read > 0);
+        astop = clock();
+        average_bytes_per_sec =
+            (double)actual_size * CLOCKS_PER_SEC / (astop - astart);
+        statusSetAverageRSpeed(targ->status, average_bytes_per_sec);
+
+        fiSetActualSize(targ->file_info, actual_size);
+        EVP_DigestFinal_ex(mdctx, sha_sum, &sha_size);
+        fiSetShaSum(sha_sum, targ->file_info);
+
+        free(mdctx);
+        free(sha_sum);
+
+        switch (errno) {
+                case 0:
+                        statusSetValue(targ->status, DONE);
+                        break;
+                default:
+                        statusSetValue(targ->status, -errno);
+                        break;
+        }
         pthread_exit(0);
 }
 
@@ -163,7 +216,6 @@ int testInDirectory(char *path,
                     int file_size,
                     int block_size,
                     Status *status) {
-        printf("testInDirectory()\n");
         return 0;
 }
 

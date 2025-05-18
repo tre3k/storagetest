@@ -22,7 +22,6 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <openssl/sha.h>
 
 #include <chrono>
 #include <random>
@@ -31,6 +30,9 @@
 #include "config.h"
 
 extern "C" {
+#include <openssl/sha.h>
+#include <pthread.h>
+
 #include "fileinformation.h"
 #include "status.h"
 #include "storagetest.h"
@@ -76,8 +78,6 @@ TEST(FileInformation, fill_structure) {
         ASSERT_EQ(fiGetFileSize(fi), file_size);
         ASSERT_EQ(fiGetBlockSize(fi), block_size);
         ASSERT_EQ(fiGetContentConstant(fi), byte);
-
-        fiFree(fi);
 }
 
 TEST(FileInformation, initArray) {
@@ -131,34 +131,38 @@ TEST(storagetest, checkShaSums) {
         ASSERT_FALSE(checkShaSums(sha_sum1, sha_sum2));
 }
 
-TEST(storagetest, writeFileTest) {
-        FileInformation *file_info = fiInit();
+TEST(storagetest, writeReadFileTest) {
+        const char *test_file_path = "/tmp/storagetest.raw";
+
+        FileInformation *file_info_write = fiInit();
+        FileInformation *file_info_read = fiInit();
+
         Status *status = statusInit();
 
-        fiSetPath((char *)"/mnt/virtualfs/1.raw", file_info);
+        fiSetPath((char *)test_file_path, file_info_write);
         // 10 MiB write
-        fiSetFileSize(10 * 1024 * 1024, file_info);
-        fiSetBlockSize(FILE_BLOCK_SIZE_DEFAULT, file_info);
-        fiSetContentType(CONSTANT, file_info);
-        fiSetContentConstant(0xa1, file_info);
+        fiSetFileSize(10 * 1024 * 1024, file_info_write);
+        fiSetBlockSize(FILE_BLOCK_SIZE_DEFAULT, file_info_write);
+        fiSetContentType(CONSTANT, file_info_write);
+        fiSetContentConstant(0xa1, file_info_write);
 
-        statusSetValue(status, 0);
+        statusSetValue(status, BUSY);
         statusResetCurrentNumber(status);
 
         ThreadArg *targ;
-        pthread_t tid = writeFile(file_info, status);
-        while (statusGetValue(status) == 0) {
+        pthread_t tid_write = writeFile(file_info_write, status);
+        while (statusGetValue(status) == BUSY) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 std::cout << "Write progress: " << statusGetProgress(status)
-                          << " / " << fiGetFileSize(file_info) << " bytes. "
-                          << statusGetCurrentWSpeed(status) << " bytes/s."
-                          << std::endl;
+                          << " / " << fiGetFileSize(file_info_write)
+                          << " bytes. " << statusGetCurrentWSpeed(status)
+                          << " bytes/s." << std::endl;
         }
-        pthread_join(tid, NULL);
+        pthread_join(tid_write, NULL);
         std::cout << "Average speed: " << statusGetAverageWSpeed(status)
                   << " bytes/s." << std::endl;
-        std::cout << "Actual size: " << fiGetActualSize(file_info) << " bytes."
-                  << std::endl;
+        std::cout << "Actual size: " << fiGetActualSize(file_info_write)
+                  << " bytes." << std::endl;
 
         if (statusGetValue(status) == 2)
                 std::cout << "device is full" << std::endl;
@@ -168,11 +172,40 @@ TEST(storagetest, writeFileTest) {
 
         std::cout << "Sha sum: " << std::hex;
 
-        const unsigned char *sha_sum = fiGetShaSum(file_info);
+        const unsigned char *writed_sha_sum = fiGetShaSum(file_info_write);
         for (int i = 0; i < SHA_SUM_LENGTH; i++)
-                std::cout << (unsigned int)(0xff & sha_sum[i]);
+                std::cout << (unsigned int)(0xff & writed_sha_sum[i]);
 
         std::cout << std::dec << std::endl;
+
+        // Read process
+        statusResetCurrentNumber(status);
+        fiSetFileSize(fiGetActualSize(file_info_write), file_info_read);
+        fiSetBlockSize(FILE_BLOCK_SIZE_DEFAULT, file_info_read);
+
+        fiSetPath((char *)test_file_path, file_info_read);
+
+        statusSetValue(status, BUSY);
+        pthread_t tid_read = readFile(file_info_read, status);
+        while (statusGetValue(status) == BUSY) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                std::cout << "Read progress: " << statusGetProgress(status)
+                          << " / " << fiGetFileSize(file_info_read)
+                          << " bytes. " << statusGetCurrentRSpeed(status)
+                          << " bytes/s." << std::endl;
+        }
+        pthread_join(tid_read, NULL);
+        std::cout << "Actual size: " << fiGetActualSize(file_info_read)
+                  << " bytes." << std::endl;
+
+        std::cout << "Sha sum: " << std::hex;
+        const unsigned char *readed_sha_sum = fiGetShaSum(file_info_read);
+        for (int i = 0; i < SHA_SUM_LENGTH; i++)
+                std::cout << (unsigned int)(0xff & readed_sha_sum[i]);
+
+        std::cout << std::dec << std::endl;
+        ASSERT_TRUE(checkShaSums((unsigned char *)writed_sha_sum,
+                                 (unsigned char *)readed_sha_sum));
 }
 
 int main(int argc, char *argv[]) {
