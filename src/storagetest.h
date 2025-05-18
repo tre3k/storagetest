@@ -52,9 +52,12 @@ pthread_t writeFiles(FileInformation **file_infos, int count, Status *status);
 pthread_t readFiles(FileInformation **file_infos, int count, Status *status);
 int removeFiles(FileInformation **file_infos, int count, Status *status);
 
-int testInDirectory(
+pthread_t testInDirectory(
     char *path, int files_count, int file_size, int block_size, Status *status);
-int testInDevice(char *path, int file_size, int block_size, Status *status);
+pthread_t testInDevice(char *path,
+                       int file_size,
+                       int block_size,
+                       Status *status);
 
 const char *fileNameGenerator(void);
 
