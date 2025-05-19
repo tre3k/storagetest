@@ -62,13 +62,13 @@ TEST(FileInformation, fill_structure) {
                 sha_sum[i] = rnd_val;
         }
 
-        fiSetPath(path, fi);
-        fiSetShaSum(sha_sum, fi);
-        fiSetContentType(RANDOM, fi);
+        fiSetPath(fi, path);
+        fiSetShaSum(fi, sha_sum);
+        fiSetContentType(fi, RANDOM);
 
-        fiSetFileSize(file_size, fi);
-        fiSetBlockSize(block_size, fi);
-        fiSetContentConstant(byte, fi);
+        fiSetFileSize(fi, file_size);
+        fiSetBlockSize(fi, block_size);
+        fiSetContentConstant(fi, byte);
 
         ASSERT_STREQ(fiGetPath(fi), path);
         for (int i = 0; i < SHA_SUM_LENGTH; i++) {
@@ -88,8 +88,8 @@ TEST(FileInformation, initArray) {
         unsigned char content[] = {0x00, 0x01, 0x02, 0x03, 0x04};
 
         for (int i = 0; i < count; i++) {
-                fiSetPath((char *)(paths[i]), fiGetFromArray(fis, i));
-                fiSetContentConstant(content[i], fiGetFromArray(fis, i));
+                fiSetPath(fiGetFromArray(fis, i), (char *)(paths[i]));
+                fiSetContentConstant(fiGetFromArray(fis, i), content[i]);
         }
 
         for (int i = 0; i < count; i++) {
@@ -139,12 +139,12 @@ TEST(storagetest, writeReadFileTest) {
 
         Status *status = statusInit();
 
-        fiSetPath((char *)test_file_path, file_info_write);
+        fiSetPath(file_info_write, (char *)test_file_path);
         // 10 MiB write
-        fiSetFileSize(10 * 1024 * 1024, file_info_write);
-        fiSetBlockSize(FILE_BLOCK_SIZE_DEFAULT, file_info_write);
-        fiSetContentType(CONSTANT, file_info_write);
-        fiSetContentConstant(0xa1, file_info_write);
+        fiSetFileSize(file_info_write, 10 * 1024 * 1024);
+        fiSetBlockSize(file_info_write, FILE_BLOCK_SIZE_DEFAULT);
+        fiSetContentType(file_info_write, CONSTANT);
+        fiSetContentConstant(file_info_write, 0xa1);
 
         statusSetValue(status, BUSY);
         statusResetCurrentNumber(status);
@@ -180,10 +180,10 @@ TEST(storagetest, writeReadFileTest) {
 
         // Read process
         statusResetCurrentNumber(status);
-        fiSetFileSize(fiGetActualSize(file_info_write), file_info_read);
-        fiSetBlockSize(FILE_BLOCK_SIZE_DEFAULT, file_info_read);
+        fiSetFileSize(file_info_read, fiGetActualSize(file_info_write));
+        fiSetBlockSize(file_info_read, FILE_BLOCK_SIZE_DEFAULT);
 
-        fiSetPath((char *)test_file_path, file_info_read);
+        fiSetPath(file_info_read, (char *)test_file_path);
 
         statusSetValue(status, BUSY);
         pthread_t tid_read = readFile(file_info_read, status);

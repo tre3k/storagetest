@@ -52,7 +52,7 @@ void fiFree(FileInformation *file_info) { free(file_info); }
 
 const char *fiGetPath(FileInformation *file_info) { return file_info->path; }
 
-void fiSetPath(char *path, FileInformation *file_info) {
+void fiSetPath(FileInformation *file_info, char *path) {
         file_info->path = malloc(strnlen(path, PATH_MAX_LENGHT) + 1);
         strcpy(file_info->path, path);
 }
@@ -61,7 +61,7 @@ const unsigned char *fiGetShaSum(FileInformation *file_info) {
         return file_info->sha_sum;
 }
 
-void fiSetShaSum(unsigned char *sha_sum, FileInformation *file_info) {
+void fiSetShaSum(FileInformation *file_info, unsigned char *sha_sum) {
         file_info->sha_sum = malloc(SHA_SUM_LENGTH);
         int i;
         //! Very bad situation if sha_sum < SHA_SUM_LENGTH
@@ -74,19 +74,19 @@ enum ContentType fiGetContentType(FileInformation *file_info) {
         return file_info->content_type;
 }
 
-void fiSetContentType(enum ContentType ct, FileInformation *file_info) {
+void fiSetContentType(FileInformation *file_info, enum ContentType ct) {
         file_info->content_type = ct;
 }
 
 size_t fiGetFileSize(FileInformation *file_info) { return file_info->size; }
-void fiSetFileSize(size_t size, FileInformation *file_info) {
+void fiSetFileSize(FileInformation *file_info, size_t size) {
         file_info->size = size;
 }
 
 size_t fiGetBlockSize(FileInformation *file_info) {
         return file_info->block_size;
 }
-void fiSetBlockSize(size_t size, FileInformation *file_info) {
+void fiSetBlockSize(FileInformation *file_info, size_t size) {
         file_info->block_size = size;
 }
 
@@ -94,7 +94,7 @@ unsigned char fiGetContentConstant(FileInformation *file_info) {
         return file_info->content_constant;
 }
 
-void fiSetContentConstant(unsigned char byte, FileInformation *file_info) {
+void fiSetContentConstant(FileInformation *file_info, unsigned char byte) {
         file_info->content_constant = byte;
 }
 

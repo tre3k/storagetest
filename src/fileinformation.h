@@ -43,22 +43,22 @@ void fiFree(FileInformation *file_info);
 size_t fiSize(void);
 
 const char *fiGetPath(FileInformation *file_info);
-void fiSetPath(char *path, FileInformation *file_info);
+void fiSetPath(FileInformation *file_info, char *path);
 
 const unsigned char *fiGetShaSum(FileInformation *file_info);
-void fiSetShaSum(unsigned char *sha_sum, FileInformation *file_info);
+void fiSetShaSum(FileInformation *file_info, unsigned char *sha_sum);
 
 enum ContentType fiGetContentType(FileInformation *file_info);
-void fiSetContentType(enum ContentType ct, FileInformation *file_info);
+void fiSetContentType(FileInformation *file_info, enum ContentType ct);
 
 size_t fiGetFileSize(FileInformation *file_info);
-void fiSetFileSize(size_t size, FileInformation *file_info);
+void fiSetFileSize(FileInformation *file_info, size_t size);
 
 size_t fiGetBlockSize(FileInformation *file_info);
-void fiSetBlockSize(size_t size, FileInformation *file_info);
+void fiSetBlockSize(FileInformation *file_info, size_t size);
 
 unsigned char fiGetContentConstant(FileInformation *file_info);
-void fiSetContentConstant(unsigned char byte, FileInformation *file_info);
+void fiSetContentConstant(FileInformation *file_info, unsigned char byte);
 
 FileInformation **fiInitArray(int count);
 void fiFreeArray(FileInformation **file_infos);

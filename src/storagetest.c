@@ -108,7 +108,7 @@ static void *_threadWriteFile(void *arg) {
         fiSetActualSize(targ->file_info, current_size);
         statusIncrProgressToAmounWrited(targ->status);
         EVP_DigestFinal_ex(mdctx, sha_sum, &sha_size);
-        fiSetShaSum(sha_sum, targ->file_info);
+        fiSetShaSum(targ->file_info, sha_sum);
 
         free(mdctx);
         free(sha_sum);
@@ -175,7 +175,7 @@ static void *_threadReadFile(void *arg) {
         fiSetActualSize(targ->file_info, actual_size);
         statusIncrProgressToAmounRead(targ->status);
         EVP_DigestFinal_ex(mdctx, sha_sum, &sha_size);
-        fiSetShaSum(sha_sum, targ->file_info);
+        fiSetShaSum(targ->file_info, sha_sum);
 
         free(mdctx);
         free(sha_sum);
