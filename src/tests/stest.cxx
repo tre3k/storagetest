@@ -216,6 +216,18 @@ TEST(storagetest, UUIDFileNames) {
                   << uuid_name2 << std::endl;
         ASSERT_STRNE(uuid_name1, uuid_name2);
 }
+TEST(storagetest, WriteFiles) {
+        Status *status = statusInit();
+        FileInformation **fis;
+        const char *path = "/tmp";
+        int f_count {3};
+        int f_size {1024};
+        auto tid =
+            testInDirectory((char *)path, f_count, f_size, 32, status, fis);
+        pthread_join(tid, NULL);
+        std::cout << "Writed: " << statusGetAmountWrited(status) << std::endl;
+        std::cout << "Readed: " << statusGetAmountRead(status) << std::endl;
+}
 
 int main(int argc, char *argv[]) {
         ::testing::InitGoogleTest(&argc, argv);

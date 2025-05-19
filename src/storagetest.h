@@ -43,6 +43,11 @@ typedef struct SThreadArg {
         Status *status;
 } ThreadArg;
 
+typedef struct SThreadsArg {
+        FileInformation **file_infos;
+        Status *status;
+} ThreadsArg;
+
 bool checkShaSums(unsigned char *sha_sum1, unsigned char *sha_sum2);
 
 pthread_t writeFile(FileInformation *file_info, Status *status);
@@ -53,7 +58,7 @@ pthread_t readFiles(FileInformation **file_infos, int count, Status *status);
 int removeFiles(FileInformation **file_infos, int count, Status *status);
 
 pthread_t testInDirectory(
-    char *path, int files_count, int file_size, int block_size, Status *status);
+	char *path, int files_count, int file_size, int block_size, Status *status, FileInformation **fis);
 pthread_t testInDevice(char *path,
                        int file_size,
                        int block_size,

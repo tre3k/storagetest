@@ -22,11 +22,19 @@
 
 #include "storagetest.h"
 
-static void *_threadWriteFile(void *arg);
 static void *_threadReadFile(void *arg);
+static void *_threadWriteFile(void *arg);
+
 static pthread_t _createThread(FileInformation *file_info,
                                Status *status,
                                void *(*start_runtine)(void *arg));
+
+static void *_threadReadFiles(void *arg);
+static void *_threadWriteFiles(void *arg);
+
+static pthread_t _createThreads(FileInformation **file_info,
+                                Status *status,
+                                void *(*start_runtine)(void *arg));
 
 static void *_threadWriteFile(void *arg) {
         int i, j;
@@ -198,6 +206,29 @@ static pthread_t _createThread(FileInformation *file_info,
         return tid;
 }
 
+static void *_threadWriteFiles(void *arg) {
+        ThreadsArg *targ = arg;
+        FileInformation **fis = targ->file_infos;
+        Status *status = targ->status;
+
+        pthread_exit(0);
+}
+
+static pthread_t _createThreads(FileInformation **file_infos,
+                                Status *status,
+                                void *(*start_runtine)(void *arg)) {
+        pthread_t tid;
+        pthread_attr_t thattr;
+        pthread_attr_init(&thattr);
+
+        ThreadsArg *arg = malloc(sizeof(struct SThreadsArg));
+        arg->file_infos = file_infos;
+        arg->status = status;
+
+        pthread_create(&tid, &thattr, start_runtine, arg);
+        return tid;
+}
+
 pthread_t writeFile(FileInformation *file_info, Status *status) {
         return _createThread(file_info, status, _threadWriteFile);
 }
@@ -218,8 +249,19 @@ pthread_t testInDirectory(char *path,
                           int files_count,
                           int file_size,
                           int block_size,
-                          Status *status) {
+                          Status *status,
+                          FileInformation **fis) {
+        int i;
         pthread_t tid;
+        fis = fiInitArray(files_count);
+        char fullpath[PATH_MAX_LENGHT];
+
+        /* filling structures of FileFnformation */
+        for (i = 0; i < files_count; i++) {
+                sprintf(fullpath, "%s/%s", path, fileNameGenerator());
+        }
+
+        tid = _createThreads(fis, status, _threadWriteFiles);
         return tid;
 }
 
@@ -228,6 +270,7 @@ pthread_t testInDevice(char *path,
                        int block_size,
                        Status *status) {
         pthread_t tid;
+
         return tid;
 }
 
