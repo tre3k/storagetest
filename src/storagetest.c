@@ -22,6 +22,8 @@
 
 #include "storagetest.h"
 
+#include "fileinformation.h"
+
 static void *_threadReadFile(void *arg);
 static void *_threadWriteFile(void *arg);
 
@@ -33,6 +35,7 @@ static void *_threadReadFiles(void *arg);
 static void *_threadWriteFiles(void *arg);
 
 static pthread_t _createThreads(FileInformation **file_info,
+                                int file_counts,
                                 Status *status,
                                 void *(*start_runtine)(void *arg));
 
@@ -207,14 +210,25 @@ static pthread_t _createThread(FileInformation *file_info,
 }
 
 static void *_threadWriteFiles(void *arg) {
+        int i;
+
         ThreadsArg *targ = arg;
         FileInformation **fis = targ->file_infos;
         Status *status = targ->status;
+        int file_count = targ->count;
+
+        printf("Start threads : %d\n", file_count);
+
+        for (i = 0; i < file_count; i++) {
+                printf("file: %s\n", fiGetPath(fiGetFromArray(fis, i)));
+                sleep(1);
+        }
 
         pthread_exit(0);
 }
 
 static pthread_t _createThreads(FileInformation **file_infos,
+                                int file_counts,
                                 Status *status,
                                 void *(*start_runtine)(void *arg)) {
         pthread_t tid;
@@ -224,6 +238,7 @@ static pthread_t _createThreads(FileInformation **file_infos,
         ThreadsArg *arg = malloc(sizeof(struct SThreadsArg));
         arg->file_infos = file_infos;
         arg->status = status;
+        arg->count = file_counts;
 
         pthread_create(&tid, &thattr, start_runtine, arg);
         return tid;
@@ -245,24 +260,32 @@ bool checkShaSums(unsigned char *sha_sum1, unsigned char *sha_sum2) {
         return true;
 }
 
-pthread_t testInDirectory(char *path,
-                          int files_count,
-                          int file_size,
-                          int block_size,
-                          Status *status,
-                          FileInformation **fis) {
+pthread_t writeFiles(FileInformation **file_infos, int count, Status *status) {
+        return _createThreads(file_infos, count, status, _threadWriteFiles);
+}
+
+pthread_t writeFilesToDirectory(char *path,
+                                int files_count,
+                                int file_size,
+                                int block_size,
+                                Status *status,
+                                FileInformation **fis) {
         int i;
-        pthread_t tid;
         fis = fiInitArray(files_count);
         char fullpath[PATH_MAX_LENGHT];
 
+        FileInformation *fi;
+
         /* filling structures of FileFnformation */
         for (i = 0; i < files_count; i++) {
+                fi = fiGetFromArray(fis, i);
                 sprintf(fullpath, "%s/%s", path, fileNameGenerator());
+                fiSetPath(fi, fullpath);
+                fiSetFileSize(fi, file_size);
+                fiSetBlockSize(fi, block_size);
         }
 
-        tid = _createThreads(fis, status, _threadWriteFiles);
-        return tid;
+        return writeFiles(fis, files_count, status);
 }
 
 pthread_t testInDevice(char *path,

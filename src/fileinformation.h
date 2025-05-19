@@ -61,8 +61,9 @@ unsigned char fiGetContentConstant(FileInformation *file_info);
 void fiSetContentConstant(FileInformation *file_info, unsigned char byte);
 
 FileInformation **fiInitArray(int count);
-void fiFreeArray(FileInformation **file_infos);
+void fiFreeArray(FileInformation **file_infos, int count);
 FileInformation *fiGetFromArray(FileInformation **fi_array, int element);
+void fiStripArray(FileInformation **fi_array, int strip_to, int old_count);
 
 size_t fiGetActualSize(FileInformation *file_info);
 void fiSetActualSize(FileInformation *file_info, size_t size);

@@ -42,7 +42,6 @@ TEST(FileInformation, fill_structure) {
         std::cout << "FileInformation size on current system: " << fiSize()
                   << " bytes." << std::endl;
         FileInformation *fi = fiInit();
-        fiFree(fi);
 
         unsigned int size = sizeof(char *) + 3 * sizeof(size_t) +
                             sizeof(unsigned char *) + sizeof(unsigned int) +
@@ -97,9 +96,7 @@ TEST(FileInformation, initArray) {
                 ASSERT_EQ(fiGetContentConstant(fiGetFromArray(fis, i)),
                           content[i]);
         }
-
-        fiFreeArray(fis);
-}
+ }
 
 TEST(status, statusInit) {
         Status *status = statusInit();
@@ -108,7 +105,6 @@ TEST(status, statusInit) {
         statusSetFilePath(status, path);
         ASSERT_STREQ(path, statusGetFilePath(status));
 
-        statusFree(status);
 }
 
 TEST(storagetest, checkShaSums) {
@@ -223,7 +219,7 @@ TEST(storagetest, WriteFiles) {
         int f_count {3};
         int f_size {1024};
         auto tid =
-            testInDirectory((char *)path, f_count, f_size, 32, status, fis);
+            writeFilesToDirectory((char *)path, f_count, f_size, 32, status, fis);
         pthread_join(tid, NULL);
         std::cout << "Writed: " << statusGetAmountWrited(status) << std::endl;
         std::cout << "Readed: " << statusGetAmountRead(status) << std::endl;

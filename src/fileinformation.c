@@ -99,14 +99,29 @@ void fiSetContentConstant(FileInformation *file_info, unsigned char byte) {
 }
 
 FileInformation **fiInitArray(int count) {
-        FileInformation **retval = malloc(count * fiSize());
+        FileInformation **retval = malloc(sizeof(FileInformation *));
+        int i;
+        for (i = 0; i < count; i++) {
+                retval[i] = malloc(sizeof(FileInformation));
+        }
         return retval;
 }
 
-void fiFreeArray(FileInformation **fi_array) { free(fi_array); }
+void fiFreeArray(FileInformation **fi_array, int count) {
+        int i;
+        for (i = 0; i < count; i++) free(fi_array[i]);
+        free(fi_array);
+}
+
+void fiStripArray(FileInformation **fi_array, int strip_to, int old_count) {
+      int i;
+      for (i = strip_to; i < old_count; i++) {
+	      free(fi_array[i]);
+      }
+}
 
 FileInformation *fiGetFromArray(FileInformation **fi_array, int element) {
-        return (FileInformation *)(fi_array + element * fiSize());
+        return fi_array[element];
 }
 
 size_t fiGetActualSize(FileInformation *file_info) {
