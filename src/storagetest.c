@@ -22,8 +22,6 @@
 
 #include "storagetest.h"
 
-#include "fileinformation.h"
-
 static void *_threadReadFile(void *arg);
 static void *_threadWriteFile(void *arg);
 
@@ -214,14 +212,19 @@ static void *_threadWriteFiles(void *arg) {
 
         ThreadsArg *targ = arg;
         FileInformation **fis = targ->file_infos;
+        FileInformation *fi = NULL;
         Status *status = targ->status;
         int file_count = targ->count;
 
-        printf("Start threads : %d\n", file_count);
+        pthread_t tid;
 
+        statusResetCurrentNumber(status);
         for (i = 0; i < file_count; i++) {
-                printf("file: %s\n", fiGetPath(fiGetFromArray(fis, i)));
-                sleep(1);
+                fi = fiGetFromArray(fis, i);
+                statusSetValue(status, BUSY);
+                tid = writeFile(fi, status);
+                pthread_join(tid, NULL);
+                if (statusGetValue(status) != DONE) break;
         }
 
         pthread_exit(0);
@@ -268,10 +271,11 @@ pthread_t writeFilesToDirectory(char *path,
                                 int files_count,
                                 int file_size,
                                 int block_size,
+                                enum ContentType content_type,
+                                unsigned char content_value,
                                 Status *status,
                                 FileInformation **fis) {
         int i;
-        fis = fiInitArray(files_count);
         char fullpath[PATH_MAX_LENGHT];
 
         FileInformation *fi;
@@ -283,6 +287,8 @@ pthread_t writeFilesToDirectory(char *path,
                 fiSetPath(fi, fullpath);
                 fiSetFileSize(fi, file_size);
                 fiSetBlockSize(fi, block_size);
+                fiSetContentType(fi, content_type);
+                fiSetContentConstant(fi, content_value);
         }
 
         return writeFiles(fis, files_count, status);

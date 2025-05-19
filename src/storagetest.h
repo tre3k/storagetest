@@ -45,7 +45,7 @@ typedef struct SThreadArg {
 
 typedef struct SThreadsArg {
         FileInformation **file_infos;
-	int count;
+        int count;
         Status *status;
 } ThreadsArg;
 
@@ -58,13 +58,15 @@ pthread_t writeFiles(FileInformation **file_infos, int count, Status *status);
 pthread_t readFiles(FileInformation **file_infos, int count, Status *status);
 int removeFiles(FileInformation **file_infos, int count, Status *status);
 
+/* User function with filling FileInformation struct */
 pthread_t writeFilesToDirectory(char *path,
                                 int files_count,
                                 int file_size,
                                 int block_size,
+                                enum ContentType content_type,
+                                unsigned char content_value,
                                 Status *status,
                                 FileInformation **fis);
-
 
 pthread_t testInDevice(char *path,
                        int file_size,

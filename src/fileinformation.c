@@ -114,10 +114,10 @@ void fiFreeArray(FileInformation **fi_array, int count) {
 }
 
 void fiStripArray(FileInformation **fi_array, int strip_to, int old_count) {
-      int i;
-      for (i = strip_to; i < old_count; i++) {
-	      free(fi_array[i]);
-      }
+        int i;
+        for (i = strip_to; i < old_count; i++) {
+                free(fi_array[i]);
+        }
 }
 
 FileInformation *fiGetFromArray(FileInformation **fi_array, int element) {

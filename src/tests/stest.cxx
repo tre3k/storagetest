@@ -96,7 +96,7 @@ TEST(FileInformation, initArray) {
                 ASSERT_EQ(fiGetContentConstant(fiGetFromArray(fis, i)),
                           content[i]);
         }
- }
+}
 
 TEST(status, statusInit) {
         Status *status = statusInit();
@@ -104,7 +104,6 @@ TEST(status, statusInit) {
         const char *path = "Some/File/Path";
         statusSetFilePath(status, path);
         ASSERT_STREQ(path, statusGetFilePath(status));
-
 }
 
 TEST(storagetest, checkShaSums) {
@@ -213,16 +212,23 @@ TEST(storagetest, UUIDFileNames) {
         ASSERT_STRNE(uuid_name1, uuid_name2);
 }
 TEST(storagetest, WriteFiles) {
-        Status *status = statusInit();
-        FileInformation **fis;
         const char *path = "/tmp";
         int f_count {3};
         int f_size {1024};
-        auto tid =
-            writeFilesToDirectory((char *)path, f_count, f_size, 32, status, fis);
+
+        Status *status = statusInit();
+        FileInformation **fis = fiInitArray(f_count);
+
+        auto tid = writeFilesToDirectory((char *)path, f_count, f_size, 32,
+                                         RANDOM, 0x00, status, fis);
         pthread_join(tid, NULL);
-        std::cout << "Writed: " << statusGetAmountWrited(status) << std::endl;
-        std::cout << "Readed: " << statusGetAmountRead(status) << std::endl;
+        for (int i = 0; i < f_count; i++) {
+                std::cout << "file: " << fiGetPath(fiGetFromArray(fis, i))
+                          << std::endl;
+        }
+        std::cout << "Writed: " << statusGetCurrentNumber(status)
+                  << " files with " << statusGetAmountWrited(status)
+                  << " bytes." << std::endl;
 }
 
 int main(int argc, char *argv[]) {
