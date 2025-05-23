@@ -99,7 +99,7 @@ void fiSetContentConstant(FileInformation *file_info, unsigned char byte) {
 }
 
 FileInformation **fiInitArray(int count) {
-        FileInformation **retval = malloc(sizeof(FileInformation *));
+        FileInformation **retval = malloc(count * sizeof(FileInformation *));
         int i;
         for (i = 0; i < count; i++) {
                 retval[i] = malloc(sizeof(FileInformation));

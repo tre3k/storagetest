@@ -25,6 +25,7 @@
 
 #include <chrono>
 #include <random>
+#include <string>
 #include <thread>
 
 #include "config.h"
@@ -80,21 +81,24 @@ TEST(FileInformation, fill_structure) {
 }
 
 TEST(FileInformation, initArray) {
-        auto count {4};
+        auto count {100};
         FileInformation **fis = fiInitArray(count);
 
-        const char *paths[] = {"file0", "file1", "file2", "file3", "file4"};
-        unsigned char content[] = {0x00, 0x01, 0x02, 0x03, 0x04};
+        std::string *s_paths = new std::string[count];
+        unsigned char content;
 
         for (int i = 0; i < count; i++) {
-                fiSetPath(fiGetFromArray(fis, i), (char *)(paths[i]));
-                fiSetContentConstant(fiGetFromArray(fis, i), content[i]);
+                s_paths[i] = std::string("some path ") + std::to_string(i);
+                content = i & 0xff;
+                fiSetPath(fiGetFromArray(fis, i), (char *)s_paths[i].c_str());
+                fiSetContentConstant(fiGetFromArray(fis, i), content);
         }
 
         for (int i = 0; i < count; i++) {
-                ASSERT_STREQ(fiGetPath(fiGetFromArray(fis, i)), paths[i]);
+                ASSERT_STREQ(fiGetPath(fiGetFromArray(fis, i)),
+                             (char *)s_paths[i].c_str());
                 ASSERT_EQ(fiGetContentConstant(fiGetFromArray(fis, i)),
-                          content[i]);
+                          i & 0xff);
         }
 }
 
