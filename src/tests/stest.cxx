@@ -211,24 +211,52 @@ TEST(storagetest, UUIDFileNames) {
                   << uuid_name2 << std::endl;
         ASSERT_STRNE(uuid_name1, uuid_name2);
 }
-TEST(storagetest, WriteFiles) {
+
+TEST(storagetest, WriteReadFiles) {
         const char *path = "/tmp";
         int f_count {3};
         int f_size {1024};
 
         Status *status = statusInit();
-        FileInformation **fis = fiInitArray(f_count);
+        FileInformation **fis_write = fiInitArray(f_count);
 
         auto tid = writeFilesToDirectory((char *)path, f_count, f_size, 32,
-                                         RANDOM, 0x00, status, fis);
+                                         RANDOM, 0x00, status, fis_write);
         pthread_join(tid, NULL);
         for (int i = 0; i < f_count; i++) {
-                std::cout << "file: " << fiGetPath(fiGetFromArray(fis, i))
+                std::cout << "file: " << fiGetPath(fiGetFromArray(fis_write, i))
                           << std::endl;
         }
         std::cout << "Writed: " << statusGetCurrentNumber(status)
                   << " files with " << statusGetAmountWrited(status)
                   << " bytes." << std::endl;
+
+        int count_for_read = statusGetCurrentNumber(status);
+        statusResetCurrentNumber(status);
+
+        FileInformation **fis_read = fiInitArray(count_for_read);
+
+        for (int i = 0; i < count_for_read; i++) {
+                auto fi_read = fiGetFromArray(fis_read, i);
+                auto fi_write = fiGetFromArray(fis_write, i);
+                fiSetPath(fi_read, (char *)fiGetPath(fi_write));
+                fiSetFileSize(fi_read, fiGetActualSize(fi_write));
+                fiSetBlockSize(fi_read, 32);
+        }
+
+        tid = readFiles(fis_read, count_for_read, status);
+        pthread_join(tid, NULL);
+
+        for (int i = 0; i < count_for_read; i++) {
+                auto fi_read = fiGetFromArray(fis_read, i);
+                auto fi_write = fiGetFromArray(fis_write, i);
+                std::cout << fiGetPath(fi_read)
+                          << " read size: " << fiGetActualSize(fi_read)
+                          << std::endl;
+                ASSERT_TRUE(
+                    checkShaSums((unsigned char *)fiGetShaSum(fi_read),
+                                 (unsigned char *)fiGetShaSum(fi_write)));
+        }
 }
 
 int main(int argc, char *argv[]) {
