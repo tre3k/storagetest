@@ -243,7 +243,6 @@ static void *_threadReadFiles(void *arg) {
 
         for (i = 0; i < file_count; i++) {
                 fi = fiGetFromArray(fis, i);
-                printf("READ FILE: %s\n", fiGetPath(fi));
                 tid = readFile(fi, status);
                 pthread_join(tid, NULL);
                 if (statusGetValue(status) != DONE) break;
@@ -286,10 +285,12 @@ bool checkShaSums(unsigned char *sha_sum1, unsigned char *sha_sum2) {
 }
 
 pthread_t writeFiles(FileInformation **file_infos, int count, Status *status) {
+        statusSetValue(status, BUSY);
         return _createThreads(file_infos, count, status, _threadWriteFiles);
 }
 
 pthread_t readFiles(FileInformation **file_infos, int count, Status *status) {
+        statusSetValue(status, BUSY);
         return _createThreads(file_infos, count, status, _threadReadFiles);
 }
 
@@ -309,7 +310,7 @@ pthread_t writeFilesToDirectory(char *path,
         /* filling structures of FileFnformation */
         for (i = 0; i < files_count; i++) {
                 fi = fiGetFromArray(fis, i);
-                sprintf(fullpath, "%s/%s", path, fileNameGenerator());
+                sprintf(fullpath, "%s/stest-%s", path, fileNameGenerator());
                 fiSetPath(fi, fullpath);
                 fiSetFileSize(fi, file_size);
                 fiSetBlockSize(fi, block_size);
