@@ -106,31 +106,35 @@ int main(int argc, char *argv[]) {
         // Read
         int count_for_read = statusGetCurrentNumber(status);
         statusResetCurrentNumber(status);
+        int current_number;
 
         FileInformation *fi_read;
         FileInformation *fi_write;
         FileInformation **fis_read = fiInitArray(count_for_read);
+        size_t *file_sizes = malloc(sizeof(size_t) * count_for_read);
 
         for (int i = 0; i < count_for_read; i++) {
                 fi_read = fiGetFromArray(fis_read, i);
                 fi_write = fiGetFromArray(fis_write, i);
                 fiSetPath(fi_read, (char *)fiGetPath(fi_write));
-                fiSetFileSize(fi_read, fiGetActualSize(fi_write));
+                file_sizes[i] = fiGetActualSize(fi_write);
+                fiSetFileSize(fi_read, file_sizes[i]);
                 fiSetBlockSize(fi_read, FILE_BLOCK_SIZE_DEFAULT);
         }
 
         tid = readFiles(fis_read, count_for_read, status);
         do {
                 sleep(update_time);
+                current_number = statusGetCurrentNumber(status);
 
                 sprintf(format_speed, "%s/s.",
                         human_size(statusGetCurrentRSpeed(status)));
                 sprintf(format_size, "%s",
                         human_size(statusGetProgress(status)));
-                /* sprintf(format_full_size, "%s", */
-                /*         human_size(fiGetFileSize(fiGetFromArray( */
-                /*             fis_read, statusGetCurrentNumber(status))))); */
-
+                if (current_number < count_for_read) {
+                        sprintf(format_full_size, "%s",
+                                human_size(file_sizes[current_number]));
+                }
                 printf(
                     "\r  Read #%d: size: %s/%s, speed: %s"
                     "                                   \r",
