@@ -121,8 +121,10 @@ static void *_threadWriteFile(void *arg) {
         gettimeofday(&astop, NULL);
         average_bytes_per_sec =
             (double)current_size / _deltaTime(astart, astop);
-        /* Тут необходимо сделать усрдеднение по нескольким фалам, т.е
-         * прибавлять average_bytes_per_sec и делить на current_number */
+
+        double old_average_speed = statusGetAverageWSpeed(targ->status);
+        average_bytes_per_sec = (old_average_speed + average_bytes_per_sec) / 2;
+
         statusSetAverageWSpeed(targ->status, average_bytes_per_sec);
         fiSetActualSize(targ->file_info, current_size);
         statusIncrProgressToAmounWrited(targ->status);
@@ -188,6 +190,10 @@ static void *_threadReadFile(void *arg) {
         } while (current_read > 0);
         gettimeofday(&astop, NULL);
         average_bytes_per_sec = (double)actual_size / _deltaTime(astart, astop);
+
+        double old_average_speed = statusGetAverageRSpeed(targ->status);
+        average_bytes_per_sec = (old_average_speed + average_bytes_per_sec) / 2;
+
         statusSetAverageRSpeed(targ->status, average_bytes_per_sec);
 
         fiSetActualSize(targ->file_info, actual_size);

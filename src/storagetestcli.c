@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
                                               FILE_BLOCK_SIZE_DEFAULT, RANDOM,
                                               0xea, status, fis_write);
         char format_speed[200];
+        char format_avr_speed[200];
         char format_size[200];
         char format_full_size[200];
 
@@ -78,14 +79,16 @@ int main(int argc, char *argv[]) {
 
                 sprintf(format_speed, "%s/s.",
                         human_size(statusGetCurrentWSpeed(status)));
+                sprintf(format_avr_speed, "%s/s.",
+                        human_size(statusGetAverageWSpeed(status)));
                 sprintf(format_size, "%s",
                         human_size(statusGetProgress(status)));
 
                 printf(
-                    "\r  Write #%d: size: %s/%s, speed: %s"
+                    "\r  Write #%d: size: %s/%s, speed: %s, avr. speed: %s"
                     "                                   \r",
                     statusGetCurrentNumber(status), format_size,
-                    format_full_size, format_speed);
+                    format_full_size, format_speed, format_avr_speed);
                 fflush(stdout);
         } while (statusGetValue(status) == BUSY);
         printf("\n");
