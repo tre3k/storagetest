@@ -101,7 +101,8 @@ static void *_threadWriteFile(void *arg) {
                 writed = write(file, buff, block_size);
                 /* from man SYNC(3): The writing, although scheduled, is not
                  * necessarily complete upon return from sync() */
-                sync();
+                /* Нужно ли делать sync() после записи каждого блока? */
+                // sync();
                 gettimeofday(&cstop, NULL);
 
                 if (writed < 0) break;
@@ -113,8 +114,10 @@ static void *_threadWriteFile(void *arg) {
                 statusSetProgress(targ->status, current_size);
                 EVP_DigestUpdate(mdctx, buff, writed);
         }
-
         close(file);
+        /* Или после закрытия файла? или делать вообще после записи серии
+           файлов? */
+        sync();
         gettimeofday(&astop, NULL);
         average_bytes_per_sec =
             (double)current_size / _deltaTime(astart, astop);
