@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 
         pthread_t tid = writeFilesToDirectory((char *)path, f_count, f_size,
                                               FILE_BLOCK_SIZE_DEFAULT, RANDOM,
-                                              0x00, status, fis_write);
+                                              0xea, status, fis_write);
         char format_speed[200];
         char format_size[200];
         char format_full_size[200];
@@ -82,8 +82,8 @@ int main(int argc, char *argv[]) {
                         human_size(statusGetProgress(status)));
 
                 printf(
-                    "\rWrite #%d: size: %s/%s, speed: %s"
-                    "                                   ",
+                    "\r  Write #%d: size: %s/%s, speed: %s"
+                    "                                   \r",
                     statusGetCurrentNumber(status), format_size,
                     format_full_size, format_speed);
                 fflush(stdout);
@@ -129,8 +129,8 @@ int main(int argc, char *argv[]) {
                 /*             fis_read, statusGetCurrentNumber(status))))); */
 
                 printf(
-                    "\rRead #%d: size: %s/%s, speed: %s"
-                    "                                   ",
+                    "\r  Read #%d: size: %s/%s, speed: %s"
+                    "                                   \r",
                     statusGetCurrentNumber(status), format_size,
                     format_full_size, format_speed);
                 fflush(stdout);
