@@ -91,17 +91,25 @@ int main(int argc, char *argv[]) {
                     format_full_size, format_speed, format_avr_speed);
                 fflush(stdout);
         } while (statusGetValue(status) == BUSY);
-        printf("\n");
         pthread_join(tid, NULL);
 
         if (statusGetValue(status) == DEVICE_IS_FULL) {
-                printf("There is no free space left on the device\n");
+                printf(
+                    "\rThere is no frefe space left on the device"
+                    "                                      \n");
         }
 
-        printf("%d files writed\n", statusGetCurrentNumber(status));
-        printf("Full size writed: %lu bytes, (%s).\n",
+        printf("\r%d files writed\n", statusGetCurrentNumber(status));
+        printf("Full size writed: %lu bytes, (%s) with avr. speed: %s.\n",
                statusGetAmountWrited(status),
-               human_size(statusGetAmountWrited(status)));
+               human_size(statusGetAmountWrited(status)), format_avr_speed);
+
+        char tmp[64];
+        printf(
+            "Remove and insert again the storage drive and mount it in the "
+            "same folder.\n");
+        printf("press any key\n");
+        fgets(tmp, 64, stdin);
 
         // Read
         int count_for_read = statusGetCurrentNumber(status);
@@ -142,12 +150,13 @@ int main(int argc, char *argv[]) {
                     format_full_size, format_speed);
                 fflush(stdout);
         } while (statusGetValue(status) == BUSY);
-        printf("\n");
         pthread_join(tid, NULL);
 
-        printf("Full size read: %lu bytes, (%s). \n",
+        sprintf(format_avr_speed, "%s",
+                human_size(statusGetAverageRSpeed(status)));
+        printf("\rFull size read: %lu bytes, (%s) with avr. speed: %s\n",
                statusGetAmountWrited(status),
-               human_size(statusGetAmountRead(status)));
+               human_size(statusGetAmountRead(status)), format_avr_speed);
 
         bool all_ok = true;
         size_t fault_size = 0;
