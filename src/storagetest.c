@@ -22,6 +22,8 @@
 
 #include "storagetest.h"
 
+#include <sys/time.h>
+
 static void *_threadReadFile(void *arg);
 static void *_threadWriteFile(void *arg);
 
@@ -37,9 +39,17 @@ static pthread_t _createThreads(FileInformation **file_info,
                                 Status *status,
                                 void *(*start_runtine)(void *arg));
 
+static double _deltaTime(struct timeval start, struct timeval end);
+
+static double _deltaTime(struct timeval start, struct timeval end) {
+        long secs = end.tv_sec - start.tv_sec;
+        long usecs = end.tv_usec - start.tv_usec;
+        return secs + usecs * 1e-6;
+}
+
 static void *_threadWriteFile(void *arg) {
         int i, j;
-        clock_t astart, astop, cstop;
+        struct timeval astart, astop, cstop;
         double average_bytes_per_sec;
         double current_bytes_per_sec;
 
@@ -73,7 +83,7 @@ static void *_threadWriteFile(void *arg) {
         unsigned int sha_size;
         EVP_DigestInit_ex(mdctx, md, NULL);
 
-        astart = clock();
+        gettimeofday(&astart, NULL);
         int file =
             open(filepath, O_CREAT | O_WRONLY, S_IWUSR | S_IRUSR | S_IRGRP);
 
@@ -89,22 +99,27 @@ static void *_threadWriteFile(void *arg) {
                 }
 
                 writed = write(file, buff, block_size);
-                cstop = clock();
+                /* from man SYNC(3): The writing, although scheduled, is not
+                 * necessarily complete upon return from sync() */
+                sync();
+                gettimeofday(&cstop, NULL);
 
                 if (writed < 0) break;
                 current_size += writed;
 
                 current_bytes_per_sec =
-                    (double)current_size * CLOCKS_PER_SEC / (cstop - astart);
+                    (double)current_size / _deltaTime(astart, cstop);
                 statusSetCurrentWSpeed(targ->status, current_bytes_per_sec);
                 statusSetProgress(targ->status, current_size);
                 EVP_DigestUpdate(mdctx, buff, writed);
         }
 
         close(file);
-        astop = clock();
+        gettimeofday(&astop, NULL);
         average_bytes_per_sec =
-            (double)current_size * CLOCKS_PER_SEC / (astop - astart);
+            (double)current_size / _deltaTime(astart, astop);
+        /* Тут необходимо сделать усрдеднение по нескольким фалам, т.е
+         * прибавлять average_bytes_per_sec и делить на current_number */
         statusSetAverageWSpeed(targ->status, average_bytes_per_sec);
         fiSetActualSize(targ->file_info, current_size);
         statusIncrProgressToAmounWrited(targ->status);
@@ -132,7 +147,7 @@ static void *_threadWriteFile(void *arg) {
 }
 
 static void *_threadReadFile(void *arg) {
-        clock_t astart, astop, cstop;
+        struct timeval astart, astop, cstop;
         double average_bytes_per_sec;
         double current_bytes_per_sec;
 
@@ -156,21 +171,20 @@ static void *_threadReadFile(void *arg) {
 
         ssize_t current_read;
         ssize_t actual_size = 0;
-        astart = clock();
+        gettimeofday(&astart, NULL);
         do {
                 current_read = read(file, buff, block_size);
-                cstop = clock();
+                gettimeofday(&cstop, NULL);
                 actual_size += current_read;
                 current_bytes_per_sec =
-                    (double)actual_size * CLOCKS_PER_SEC / (cstop - astart);
+                    (double)actual_size / _deltaTime(astart, cstop);
                 statusSetCurrentRSpeed(targ->status, current_bytes_per_sec);
                 statusSetProgress(targ->status, actual_size);
 
                 EVP_DigestUpdate(mdctx, buff, current_read);
         } while (current_read > 0);
-        astop = clock();
-        average_bytes_per_sec =
-            (double)actual_size * CLOCKS_PER_SEC / (astop - astart);
+        gettimeofday(&astop, NULL);
+        average_bytes_per_sec = (double)actual_size / _deltaTime(astart, astop);
         statusSetAverageRSpeed(targ->status, average_bytes_per_sec);
 
         fiSetActualSize(targ->file_info, actual_size);
