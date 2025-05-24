@@ -85,7 +85,7 @@ target_link_libraries(${PROGRAM_NAME}
   )
 
 add_executable(${PROGRAM_NAME}cli
-  ${SOURCES_SUBDIR}/main.c
+  ${SOURCES_SUBDIR}/${PROGRAM_NAME}cli.c
   )
 
 target_link_libraries(${PROGRAM_NAME}cli
