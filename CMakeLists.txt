@@ -25,19 +25,28 @@ set(PROGRAM_NAME storagetest)
 project(${PROGRAM_NAME})
 set(SOURCES_SUBDIR src)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+
 set(INCLUDES
   ${PROJECT_SOURCE_DIR}/${SOURCES_SUBDIR}
   )
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(LIBS_PATH
+  ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
+  )
 
 set(CMAKE_C_STANDARD 23)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 find_library(SSL_LIB ssl)
 find_library(CRYPTO_LIB crypto)
+find_library(PTHREAD_LIB pthread)
+find_library(UUID_LIB uuid)
 
 include_directories(${INCLUDES})
+link_directories(${LIBS_PATH})
 
 execute_process(
   COMMAND "git" "describe" "--always" "--tags"
@@ -57,18 +66,33 @@ set(CMAKE_C_COMPILER_VERSION_TEXT \"${CMAKE_C_COMPILER_VERSION}\")
 set(CMAKE_C_COMPILER_ID_TEXT \"${CMAKE_C_COMPILER_ID}\")
 
 if(NOT DEFINED USE_SHA512)
-    set(USE_SHA512 0)
+  set(USE_SHA512 0)
 endif(NOT DEFINED USE_SHA512)
 
 configure_file(config.h.in ${PROJECT_SOURCE_DIR}/${SOURCES_SUBDIR}/config.h)
 
-add_executable(${PROGRAM_NAME}
-  ${SOURCES_SUBDIR}/main.c
+add_library(${PROGRAM_NAME} STATIC
+  ${SOURCES_SUBDIR}/storagetest.c
+  ${SOURCES_SUBDIR}/fileinformation.c
+  ${SOURCES_SUBDIR}/status.c
   )
-
-target_sources(${PROGRAM_NAME} PRIVATE ${QM_FILES})
 
 target_link_libraries(${PROGRAM_NAME}
   ${SSL_LIB}
   ${CRYPTO_LIB}
+  ${PTHREAD_LIB}
+  ${UUID_LIB}
   )
+
+add_executable(${PROGRAM_NAME}cli
+  ${SOURCES_SUBDIR}/${PROGRAM_NAME}cli.c
+  )
+
+target_link_libraries(${PROGRAM_NAME}cli
+  ${SSL_LIB}
+  ${CRYPTO_LIB}
+  ${PTHREAD_LIB}
+  storagetest
+  )
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/${SOURCES_SUBDIR}/tests)
